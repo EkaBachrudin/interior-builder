@@ -1,0 +1,499 @@
+'use client'
+
+import { useEffect, useRef, useState, useCallback } from 'react'
+import { Scene3D, ProceduralRoom } from '@/lib/blueprint3d'
+import { useInteriorStore } from '@/lib/store'
+import { ItemFactory } from '@/lib/furniture/item-factory'
+import { PlacementSystem } from '@/lib/furniture/placement-system'
+import { ManipulationControls } from '@/lib/furniture/manipulation-controls'
+import * as THREE from 'three'
+import { Item } from '@/lib/constants'
+
+interface SceneInteractionProps {
+  className?: string
+  onObjectSelect?: (objectId: string | null) => void
+  onObjectTransform?: (objectId: string, transform: { position: THREE.Vector3, rotation: number, scale: THREE.Vector3 }) => void
+}
+
+export function SceneInteraction({ className = '', onObjectSelect, onObjectTransform }: SceneInteractionProps) {
+  const containerRef = useRef<HTMLDivElement>(null)
+  const scene3DRef = useRef<Scene3D | null>(null)
+  const roomRef = useRef<ProceduralRoom | null>(null)
+  const initializationRef = useRef(false)
+  
+  // Furniture systems
+  const itemFactoryRef = useRef<ItemFactory | null>(null)
+  const placementSystemRef = useRef<PlacementSystem | null>(null)
+  const manipulationControlsRef = useRef<ManipulationControls | null>(null)
+  
+  // State
+  const [isInitialized, setIsInitialized] = useState(false)
+  const [isPlacing, setIsPlacing] = useState(false)
+  const [placingItem, setPlacingItem] = useState<Item | null>(null)
+  const [loadingProgress, setLoadingProgress] = useState(0)
+  const [isLoading, setIsLoading] = useState(false)
+  
+  // Store selectors
+  const roomWidth = useInteriorStore((state) => state.room.width)
+  const roomHeight = useInteriorStore((state) => state.room.height)
+  const roomWallHeight = useInteriorStore((state) => state.room.wallHeight)
+  const floorTexture = useInteriorStore((state) => state.room.floorTexture)
+  const wallTexture = useInteriorStore((state) => state.room.wallTexture)
+  const wallsVisible = useInteriorStore((state) => state.room.wallsVisible)
+  const smartWallsEnabled = useInteriorStore((state) => state.room.smartWallsEnabled)
+  const smartWallsSensitivity = useInteriorStore((state) => state.room.smartWallsSensitivity)
+  const smartWallsTransitionSpeed = useInteriorStore((state) => state.room.smartWallsTransitionSpeed)
+  const placedItems = useInteriorStore((state) => state.placedItems)
+  const addItem = useInteriorStore((state) => state.addItem)
+  const updateItem = useInteriorStore((state) => state.updateItem)
+  const removeItem = useInteriorStore((state) => state.removeItem)
+  const selectItem = useInteriorStore((state) => state.selectItem)
+  const selectedItemId = useInteriorStore((state) => state.selectedItemId)
+
+  // Initialize scene only once when container has proper dimensions
+  useEffect(() => {
+    if (initializationRef.current || !containerRef.current) return
+
+    const container = containerRef.current
+    
+    // Function to initialize scene
+    const initializeScene = () => {
+      if (initializationRef.current || !containerRef.current) return
+
+      try {
+        // Check if container has valid dimensions
+        const width = container.clientWidth
+        const height = container.clientHeight
+        
+        if (width === 0 || height === 0) {
+          console.warn('Container has invalid dimensions, waiting for resize...')
+          return
+        }
+
+        // Initialize Scene3D
+        const scene3D = new Scene3D(container)
+        scene3DRef.current = scene3D
+
+        // Create procedural room
+        const proceduralRoom = new ProceduralRoom(scene3D.getScene(), {
+          width: roomWidth,
+          height: roomHeight,
+          wallHeight: roomWallHeight,
+          floorTexture: floorTexture || undefined,
+          wallTexture: wallTexture || undefined
+        })
+        roomRef.current = proceduralRoom
+
+        // Initialize furniture systems
+        itemFactoryRef.current = new ItemFactory()
+        placementSystemRef.current = new PlacementSystem(
+          scene3D.getScene(),
+          scene3D.getCamera()
+        )
+        
+        manipulationControlsRef.current = new ManipulationControls(
+          scene3D.getScene(),
+          scene3D.getCamera(),
+          scene3D.getRenderer(),
+          scene3D.getRenderer().domElement
+        )
+
+        // Setup manipulation callbacks
+        manipulationControlsRef.current.onSelect((object) => {
+          const objectId = object?.userData.itemId || null
+          onObjectSelect?.(objectId)
+          selectItem(objectId)
+        })
+
+        manipulationControlsRef.current.onTransform((object) => {
+          const objectId = object.userData.itemId
+          if (objectId && onObjectTransform) {
+            onObjectTransform(objectId, {
+              position: object.position.clone(),
+              rotation: THREE.MathUtils.radToDeg(object.rotation.y),
+              scale: object.scale.clone()
+            })
+            
+            // Update store
+            updateItem(objectId, {
+              position: [object.position.x, object.position.y, object.position.z],
+              rotation: THREE.MathUtils.radToDeg(object.rotation.y),
+              scale: object.scale.x
+            })
+          }
+        })
+
+        // Start animation
+        scene3D.startAnimation()
+
+        initializationRef.current = true
+        setIsInitialized(true)
+        
+      } catch (error) {
+        console.error('Failed to initialize scene interaction:', error)
+      }
+    }
+
+    // Set up ResizeObserver to detect when container has proper dimensions
+    const resizeObserver = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        const { width, height } = entry.contentRect
+        if (width > 0 && height > 0 && !initializationRef.current) {
+          initializeScene()
+        }
+      }
+    })
+
+    // Start observing the container
+    resizeObserver.observe(container)
+
+    // Try immediate initialization if container already has dimensions
+    initializeScene()
+
+    return () => {
+      resizeObserver.disconnect()
+      
+      if (manipulationControlsRef.current) {
+        manipulationControlsRef.current.dispose()
+      }
+      if (placementSystemRef.current) {
+        placementSystemRef.current.dispose()
+      }
+      if (itemFactoryRef.current) {
+        itemFactoryRef.current.dispose()
+      }
+      if (roomRef.current) {
+        roomRef.current.dispose()
+      }
+      if (scene3DRef.current) {
+        scene3DRef.current.dispose()
+      }
+      initializationRef.current = false
+      setIsInitialized(false)
+    }
+  }, []) // Empty dependency array - run only once
+
+  // Handle item placement from catalog
+  const startItemPlacement = useCallback(async (item: Item) => {
+    if (!itemFactoryRef.current || !placementSystemRef.current) return
+
+    setIsLoading(true)
+    setLoadingProgress(0)
+
+    try {
+      // Load the model
+      const loadedModel = await itemFactoryRef.current.loadModel(item)
+      
+      // Create clone for placement
+      const modelClone = itemFactoryRef.current.createModelClone(item.model)
+      if (!modelClone) {
+        throw new Error('Failed to create model clone')
+      }
+
+      // Start placement mode
+      placementSystemRef.current.startPlacement(modelClone)
+      setPlacingItem(item)
+      setIsPlacing(true)
+      
+    } catch (error) {
+      console.error('Failed to start item placement:', error)
+    } finally {
+      setIsLoading(false)
+      setLoadingProgress(0)
+    }
+  }, [])
+
+  // Cancel item placement
+  const cancelItemPlacement = useCallback(() => {
+    if (placementSystemRef.current) {
+      placementSystemRef.current.stopPlacement()
+    }
+    setIsPlacing(false)
+    setPlacingItem(null)
+  }, [])
+
+  // Confirm item placement
+  const confirmItemPlacement = useCallback(() => {
+    if (!placementSystemRef.current || !placingItem) return
+
+    const result = placementSystemRef.current.placeModel()
+    
+    if (result && result.success && result.valid) {
+      // Add the item to the store
+      addItem(placingItem, [
+        result.position.x,
+        result.position.y,
+        result.position.z
+      ])
+    }
+
+    // Stop placement mode
+    cancelItemPlacement()
+  }, [placingItem, addItem, cancelItemPlacement])
+
+  // Handle mouse movement for placement preview
+  const handleMouseMove = useCallback((event: MouseEvent) => {
+    if (!placementSystemRef.current || !isPlacing) return
+
+    placementSystemRef.current.updatePlacement(
+      event.clientX,
+      event.clientY,
+      roomWidth,
+      roomHeight
+    )
+  }, [isPlacing, roomWidth, roomHeight])
+
+  // Handle mouse click for placement
+  const handleClick = useCallback((event: MouseEvent) => {
+    if (!isPlacing) return
+
+    // Left click to place
+    if (event.button === 0) {
+      confirmItemPlacement()
+    }
+    // Right click to cancel
+    else if (event.button === 2) {
+      cancelItemPlacement()
+    }
+  }, [isPlacing, confirmItemPlacement, cancelItemPlacement])
+
+  // Setup event listeners for placement
+  useEffect(() => {
+    if (!isPlacing) return
+
+    window.addEventListener('mousemove', handleMouseMove)
+    window.addEventListener('mousedown', handleClick)
+    window.addEventListener('contextmenu', (e) => e.preventDefault())
+
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove)
+      window.removeEventListener('mousedown', handleClick)
+    }
+  }, [isPlacing, handleMouseMove, handleClick])
+
+  // Update room configuration
+  useEffect(() => {
+    if (!roomRef.current || !isInitialized) return
+
+    try {
+      roomRef.current.updateConfig({
+        width: roomWidth,
+        height: roomHeight,
+        wallHeight: roomWallHeight,
+        floorTexture: floorTexture || undefined,
+        wallTexture: wallTexture || undefined
+      })
+    } catch (error) {
+      console.error('Failed to update room:', error)
+    }
+  }, [roomWidth, roomHeight, roomWallHeight, floorTexture, wallTexture, isInitialized])
+
+  // Update wall visibility
+  useEffect(() => {
+    if (!roomRef.current || !isInitialized) return
+
+    try {
+      roomRef.current.setWallsVisibility(wallsVisible)
+    } catch (error) {
+      console.error('Failed to update wall visibility:', error)
+    }
+  }, [wallsVisible, isInitialized])
+
+  // Initialize smart walls system
+  useEffect(() => {
+    if (!roomRef.current || !scene3DRef.current || !isInitialized) return
+
+    try {
+      console.log('Smart walls check - enabled:', smartWallsEnabled, 'initialized:', roomRef.current.isSmartWallsEnabled())
+      
+      if (smartWallsEnabled && !roomRef.current.isSmartWallsEnabled()) {
+        console.log('Initializing smart walls with camera')
+        // Initialize smart walls with camera
+        roomRef.current.initializeSmartWalls(scene3DRef.current.getCamera(), {
+          enabled: true,
+          sensitivity: smartWallsSensitivity,
+          transitionSpeed: smartWallsTransitionSpeed,
+          debugMode: false
+        })
+        console.log('Smart walls initialized successfully')
+      } else if (!smartWallsEnabled && roomRef.current.isSmartWallsEnabled()) {
+        console.log('Disabling smart walls')
+        // Disable smart walls
+        roomRef.current.setSmartWallsEnabled(false)
+      }
+    } catch (error) {
+      console.error('Failed to initialize smart walls:', error)
+    }
+  }, [smartWallsEnabled, isInitialized])
+
+  // Update smart walls configuration
+  useEffect(() => {
+    if (!roomRef.current || !isInitialized || !smartWallsEnabled) return
+
+    try {
+      console.log('Updating smart walls config - sensitivity:', smartWallsSensitivity, 'speed:', smartWallsTransitionSpeed)
+      roomRef.current.setSmartWallsConfig({
+        sensitivity: smartWallsSensitivity,
+        transitionSpeed: smartWallsTransitionSpeed
+      })
+    } catch (error) {
+      console.error('Failed to update smart walls config:', error)
+    }
+  }, [smartWallsSensitivity, smartWallsTransitionSpeed, isInitialized, smartWallsEnabled])
+
+  // Sync placed items from store to scene
+  useEffect(() => {
+    if (!isInitialized || !scene3DRef.current) return
+
+    const scene = scene3DRef.current.getScene()
+
+    // Remove all existing furniture objects
+    const objectsToRemove: THREE.Object3D[] = []
+    scene.traverse((object) => {
+      if (object.userData.isFurniture) {
+        objectsToRemove.push(object)
+      }
+    })
+    objectsToRemove.forEach(obj => scene.remove(obj))
+
+    // Add placed items from store
+    placedItems.forEach((placedItem) => {
+      // This would need to be implemented with actual model loading
+      // For now, we'll create a simple placeholder
+      const geometry = new THREE.BoxGeometry(50, 50, 50)
+      const material = new THREE.MeshStandardMaterial({ color: 0x00ff00 })
+      const mesh = new THREE.Mesh(geometry, material)
+      
+      mesh.position.set(...placedItem.position)
+      mesh.rotation.y = THREE.MathUtils.degToRad(placedItem.rotation)
+      mesh.scale.set(placedItem.scale, placedItem.scale, placedItem.scale)
+      mesh.userData.isFurniture = true
+      mesh.userData.itemId = placedItem.id
+      
+      scene.add(mesh)
+    })
+
+  }, [placedItems, isInitialized])
+
+  // Handle selection from store
+  useEffect(() => {
+    if (!manipulationControlsRef.current || !scene3DRef.current) return
+
+    const scene = scene3DRef.current.getScene()
+    
+    if (selectedItemId) {
+      // Find the object with matching ID
+      let selectedObject: THREE.Object3D | null = null
+      scene.traverse((object) => {
+        if (object.userData.itemId === selectedItemId) {
+          selectedObject = object
+        }
+      })
+
+      if (selectedObject) {
+        manipulationControlsRef.current.selectObject(selectedObject)
+      }
+    } else {
+      manipulationControlsRef.current.deselectObject()
+    }
+  }, [selectedItemId])
+
+  // Handle window resize
+  useEffect(() => {
+    const handleResize = () => {
+      if (scene3DRef.current) {
+        scene3DRef.current.resize()
+      }
+    }
+
+    window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
+  }, [])
+
+  // Expose placement functions to window object for catalog integration
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      (window as any).startItemPlacement = (item: Item) => {
+        startItemPlacement(item)
+      }
+      (window as any).cancelItemPlacement = () => {
+        cancelItemPlacement()
+      }
+      (window as any).confirmItemPlacement = () => {
+        confirmItemPlacement()
+      }
+    }
+    
+    // Cleanup
+    return () => {
+      if (typeof window !== 'undefined') {
+        delete (window as any).startItemPlacement
+        delete (window as any).cancelItemPlacement
+        delete (window as any).confirmItemPlacement
+      }
+    }
+  }, [startItemPlacement, cancelItemPlacement, confirmItemPlacement])
+
+  return (
+    <div className="relative h-full">
+      <div 
+        ref={containerRef} 
+        className={`w-full h-full ${className}`}
+      />
+      
+      {/* Placement UI Overlay */}
+      {isPlacing && (
+        <div className="absolute top-4 left-1/2 transform -translate-x-1/2 bg-white rounded-lg shadow-lg px-6 py-4 z-10">
+          <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-2">
+              <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                {placingItem && (
+                  <img src={placingItem.image} alt={placingItem.name} className="w-6 h-6 object-cover rounded" />
+                )}
+              </div>
+              <span className="font-medium text-gray-900">{placingItem?.name}</span>
+            </div>
+            
+            <div className="h-6 w-px bg-gray-200" />
+            
+            <div className="text-sm text-gray-600">
+              <span className="font-medium">Click</span> to place
+            </div>
+            <div className="text-sm text-gray-600">
+              <span className="font-medium">Right-click</span> to cancel
+            </div>
+            
+            <div className="h-6 w-px bg-gray-200" />
+            
+            <button
+              onClick={cancelItemPlacement}
+              className="px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg text-sm font-medium text-gray-700 transition-colors"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
+      
+      {/* Loading overlay */}
+      {isLoading && (
+        <div className="absolute inset-0 bg-black/50 flex items-center justify-center z-20">
+          <div className="bg-white rounded-lg p-6 max-w-sm w-full mx-4">
+            <div className="text-center">
+              <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">Loading Model</h3>
+              <p className="text-sm text-gray-600">Please wait while we load the furniture model...</p>
+              <div className="mt-4 bg-gray-200 rounded-full h-2">
+                <div 
+                  className="bg-blue-600 h-2 rounded-full transition-all duration-300" 
+                  style={{ width: `${loadingProgress * 100}%` }}
+                />
+              </div>
+              <p className="text-xs text-gray-500 mt-2">{Math.round(loadingProgress * 100)}%</p>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}

@@ -1,0 +1,15 @@
+export { Scene3D } from './three/main'
+export { CameraControls } from './three/controls'
+export { Lighting } from './three/lights'
+export { Floor } from './three/floor'
+export { Walls } from './three/edge'
+export { ProceduralRoom } from './model/room-model'
+export { SmartWallsSystem } from './three/smart-walls'
+
+export { EventEmitter } from './core/events'
+export { DEFAULT_CONFIG } from './core/configuration'
+export type { Configuration } from './core/configuration'
+export type { SmartWallsConfig, EnhancedWall } from './three/smart-walls'
+
+export * from './core/utils'
+export * from './model/room'
