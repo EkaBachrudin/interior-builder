@@ -13,3 +13,6 @@ export type { SmartWallsConfig, EnhancedWall } from './three/smart-walls'
 
 export * from './core/utils'
 export * from './model/room'
+
+export { TextureManager } from '../texture/texture-manager'
+export { DoorWindowSystem } from '../furniture/door-window-system'

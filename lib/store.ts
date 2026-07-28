@@ -52,10 +52,13 @@ const initialState = {
     floorTexture: '',
     wallTexture: '',
     wallsVisible: true,
+    ceilingVisible: false,
+    wireframeMode: false,
     smartWallsEnabled: true,
     smartWallsSensitivity: 0.5,
     smartWallsTransitionSpeed: 300,
-    smartWallsDebugMode: false
+    smartWallsDebugMode: false,
+    presetName: 'Custom'
   },
   placedItems: [],
   selectedItemId: null,

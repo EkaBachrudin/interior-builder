@@ -14,6 +14,7 @@ export class Scene3D extends EventEmitter {
   private config: Configuration
   private animationId: number | null = null
   private lighting!: Lighting
+  private wireframeActive: boolean = false
 
   constructor(container: HTMLElement, config: Partial<Configuration> = {}) {
     super()
@@ -146,5 +147,33 @@ export class Scene3D extends EventEmitter {
 
   public getRenderer(): THREE.WebGLRenderer {
     return this.renderer
+  }
+
+  public toggleWireframe(): boolean {
+    this.wireframeActive = !this.wireframeActive
+    this.setWireframeMode(this.wireframeActive)
+    return this.wireframeActive
+  }
+
+  public setWireframeMode(enabled: boolean): void {
+    this.wireframeActive = enabled
+    this.scene.traverse((object) => {
+      if (object instanceof THREE.Mesh) {
+        const materials = Array.isArray(object.material) ? object.material : [object.material]
+        materials.forEach(mat => {
+          if (mat instanceof THREE.MeshStandardMaterial ||
+              mat instanceof THREE.MeshBasicMaterial ||
+              mat instanceof THREE.MeshPhongMaterial ||
+              mat instanceof THREE.MeshLambertMaterial) {
+            mat.wireframe = enabled
+            mat.needsUpdate = true
+          }
+        })
+      }
+    })
+  }
+
+  public isWireframe(): boolean {
+    return this.wireframeActive
   }
 }

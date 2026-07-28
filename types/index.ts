@@ -15,10 +15,13 @@ export interface RoomState {
   floorTexture: string
   wallTexture: string
   wallsVisible: boolean
+  ceilingVisible: boolean
+  wireframeMode: boolean
   smartWallsEnabled: boolean
   smartWallsSensitivity: number
   smartWallsTransitionSpeed: number
   smartWallsDebugMode: boolean
+  presetName: string
 }
 
 export interface DesignState {

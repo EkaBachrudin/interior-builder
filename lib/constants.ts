@@ -739,3 +739,79 @@ export const WALL_TEXTURES = [
     scale: 100
   }
 ]
+
+export interface RoomPreset {
+  name: string
+  width: number
+  height: number
+  wallHeight: number
+  floorTexture: string
+  wallTexture: string
+}
+
+export const ROOM_PRESETS: RoomPreset[] = [
+  {
+    name: 'Custom',
+    width: 4,
+    height: 4,
+    wallHeight: 250,
+    floorTexture: '',
+    wallTexture: ''
+  },
+  {
+    name: 'Small Bedroom',
+    width: 3,
+    height: 3,
+    wallHeight: 250,
+    floorTexture: '',
+    wallTexture: ''
+  },
+  {
+    name: 'Master Bedroom',
+    width: 4,
+    height: 5,
+    wallHeight: 260,
+    floorTexture: FLOOR_TEXTURES[0]?.url || '',
+    wallTexture: ''
+  },
+  {
+    name: 'Living Room',
+    width: 5,
+    height: 6,
+    wallHeight: 250,
+    floorTexture: FLOOR_TEXTURES[0]?.url || '',
+    wallTexture: ''
+  },
+  {
+    name: 'Studio Apartment',
+    width: 6,
+    height: 6,
+    wallHeight: 260,
+    floorTexture: FLOOR_TEXTURES[0]?.url || '',
+    wallTexture: WALL_TEXTURES[0]?.url || ''
+  },
+  {
+    name: 'Kitchen',
+    width: 3,
+    height: 4,
+    wallHeight: 250,
+    floorTexture: '',
+    wallTexture: WALL_TEXTURES[2]?.url || ''
+  },
+  {
+    name: 'Home Office',
+    width: 3,
+    height: 3.5,
+    wallHeight: 250,
+    floorTexture: '',
+    wallTexture: ''
+  },
+  {
+    name: 'Kids Room',
+    width: 3.5,
+    height: 4,
+    wallHeight: 250,
+    floorTexture: '',
+    wallTexture: WALL_TEXTURES[1]?.url || ''
+  }
+]

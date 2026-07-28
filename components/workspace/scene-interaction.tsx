@@ -6,6 +6,7 @@ import { useInteriorStore } from '@/lib/store'
 import { ItemFactory } from '@/lib/furniture/item-factory'
 import { PlacementSystem } from '@/lib/furniture/placement-system'
 import { ManipulationControls } from '@/lib/furniture/manipulation-controls'
+import { DoorWindowSystem } from '@/lib/furniture/door-window-system'
 import * as THREE from 'three'
 import { Item, ITEMS } from '@/lib/constants'
 
@@ -25,6 +26,7 @@ export function SceneInteraction({ className = '', onObjectSelect, onObjectTrans
   const itemFactoryRef = useRef<ItemFactory | null>(null)
   const placementSystemRef = useRef<PlacementSystem | null>(null)
   const manipulationControlsRef = useRef<ManipulationControls | null>(null)
+  const doorWindowSystemRef = useRef<DoorWindowSystem | null>(null)
   
   // State
   const [isInitialized, setIsInitialized] = useState(false)
@@ -43,6 +45,7 @@ export function SceneInteraction({ className = '', onObjectSelect, onObjectTrans
   const smartWallsEnabled = useInteriorStore((state) => state.room.smartWallsEnabled)
   const smartWallsSensitivity = useInteriorStore((state) => state.room.smartWallsSensitivity)
   const smartWallsTransitionSpeed = useInteriorStore((state) => state.room.smartWallsTransitionSpeed)
+  const wireframeMode = useInteriorStore((state) => state.room.wireframeMode)
   const placedItems = useInteriorStore((state) => state.placedItems)
   const addItem = useInteriorStore((state) => state.addItem)
   const updateItem = useInteriorStore((state) => state.updateItem)
@@ -97,6 +100,12 @@ export function SceneInteraction({ className = '', onObjectSelect, onObjectTrans
           scene3D.getRenderer(),
           scene3D.getRenderer().domElement
         )
+
+        doorWindowSystemRef.current = new DoorWindowSystem(
+          scene3D.getScene(),
+          scene3D.getCamera()
+        )
+        doorWindowSystemRef.current.registerWalls(roomWidth, roomHeight, roomWallHeight)
 
         // Setup manipulation callbacks
         manipulationControlsRef.current.onSelect((object) => {
@@ -156,6 +165,9 @@ export function SceneInteraction({ className = '', onObjectSelect, onObjectTrans
       if (manipulationControlsRef.current) {
         manipulationControlsRef.current.dispose()
       }
+      if (doorWindowSystemRef.current) {
+        doorWindowSystemRef.current.dispose()
+      }
       if (placementSystemRef.current) {
         placementSystemRef.current.dispose()
       }
@@ -189,26 +201,34 @@ export function SceneInteraction({ className = '', onObjectSelect, onObjectTrans
 
   // Handle item placement from catalog
   const startItemPlacement = useCallback(async (item: Item) => {
-    if (!itemFactoryRef.current || !placementSystemRef.current) return
+    if (!itemFactoryRef.current) return
 
     setIsLoading(true)
     setLoadingProgress(0)
 
     try {
-      // Load the model
-      const loadedModel = await itemFactoryRef.current.loadModel(item)
-      
-      // Create clone for placement
-      const modelClone = itemFactoryRef.current.createModelClone(item.model)
-      if (!modelClone) {
-        throw new Error('Failed to create model clone')
+      const isDoorWindow = item.type === '7' || item.type === '3'
+
+      if (isDoorWindow && doorWindowSystemRef.current) {
+        const loadedModel = await itemFactoryRef.current.loadModel(item)
+        const modelClone = itemFactoryRef.current.createModelClone(item.model)
+        if (!modelClone) {
+          throw new Error('Failed to create model clone')
+        }
+        doorWindowSystemRef.current.startPlacement(modelClone, 0, 0)
+        setPlacingItem(item)
+        setIsPlacing(true)
+      } else if (placementSystemRef.current) {
+        const loadedModel = await itemFactoryRef.current.loadModel(item)
+        const modelClone = itemFactoryRef.current.createModelClone(item.model)
+        if (!modelClone) {
+          throw new Error('Failed to create model clone')
+        }
+        placementSystemRef.current.startPlacement(modelClone)
+        setPlacingItem(item)
+        setIsPlacing(true)
       }
 
-      // Start placement mode
-      placementSystemRef.current.startPlacement(modelClone)
-      setPlacingItem(item)
-      setIsPlacing(true)
-      
     } catch (error) {
       console.error('Failed to start item placement:', error)
     } finally {
@@ -222,26 +242,49 @@ export function SceneInteraction({ className = '', onObjectSelect, onObjectTrans
     if (placementSystemRef.current) {
       placementSystemRef.current.stopPlacement()
     }
+    if (doorWindowSystemRef.current) {
+      doorWindowSystemRef.current.stopPlacementPreview()
+    }
     setIsPlacing(false)
     setPlacingItem(null)
   }, [])
 
   // Confirm item placement
   const confirmItemPlacement = useCallback(() => {
-    if (!placementSystemRef.current || !placingItem) return
+    if (!placingItem) return
 
+    const isDoorWindow = placingItem.type === '7' || placingItem.type === '3'
     const itemId = `item-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
-    const result = placementSystemRef.current.placeModel(itemId)
 
-    if (result && result.success && result.valid) {
-      addItem(placingItem, [
-        result.position.x,
-        result.position.y,
-        result.position.z
-      ], itemId)
-    } else {
-      cancelItemPlacement()
-      return
+    if (isDoorWindow && doorWindowSystemRef.current) {
+      const factory = itemFactoryRef.current
+      if (!factory) return
+      const modelClone = factory.createModelClone(placingItem.model)
+      if (!modelClone) return
+
+      const result = doorWindowSystemRef.current.placeItem(
+        modelClone,
+        typeof window !== 'undefined' ? window.innerWidth / 2 : 0,
+        typeof window !== 'undefined' ? window.innerHeight / 2 : 0,
+        itemId
+      )
+
+      if (result && result.success) {
+        addItem(placingItem, [
+          result.position.x,
+          result.position.y,
+          result.position.z
+        ], itemId)
+      }
+    } else if (placementSystemRef.current) {
+      const result = placementSystemRef.current.placeModel(itemId)
+      if (result && result.success && result.valid) {
+        addItem(placingItem, [
+          result.position.x,
+          result.position.y,
+          result.position.z
+        ], itemId)
+      }
     }
 
     cancelItemPlacement()
@@ -249,15 +292,21 @@ export function SceneInteraction({ className = '', onObjectSelect, onObjectTrans
 
   // Handle mouse movement for placement preview
   const handleMouseMove = useCallback((event: MouseEvent) => {
-    if (!placementSystemRef.current || !isPlacing) return
+    if (!isPlacing) return
 
-    placementSystemRef.current.updatePlacement(
-      event.clientX,
-      event.clientY,
-      roomWidth,
-      roomHeight
-    )
-  }, [isPlacing, roomWidth, roomHeight])
+    const isDoorWindow = placingItem?.type === '7' || placingItem?.type === '3'
+
+    if (isDoorWindow && doorWindowSystemRef.current) {
+      doorWindowSystemRef.current.updatePlacement(event.clientX, event.clientY)
+    } else if (placementSystemRef.current) {
+      placementSystemRef.current.updatePlacement(
+        event.clientX,
+        event.clientY,
+        roomWidth,
+        roomHeight
+      )
+    }
+  }, [isPlacing, roomWidth, roomHeight, placingItem])
 
   // Handle mouse click for placement
   const handleClick = useCallback((event: MouseEvent) => {
@@ -299,6 +348,10 @@ export function SceneInteraction({ className = '', onObjectSelect, onObjectTrans
         floorTexture: floorTexture || undefined,
         wallTexture: wallTexture || undefined
       })
+
+      if (doorWindowSystemRef.current) {
+        doorWindowSystemRef.current.registerWalls(roomWidth, roomHeight, roomWallHeight)
+      }
     } catch (error) {
       console.error('Failed to update room:', error)
     }
@@ -357,6 +410,12 @@ export function SceneInteraction({ className = '', onObjectSelect, onObjectTrans
     }
   }, [smartWallsSensitivity, smartWallsTransitionSpeed, isInitialized, smartWallsEnabled])
 
+  // Wireframe mode sync
+  useEffect(() => {
+    if (!scene3DRef.current || !isInitialized) return
+    scene3DRef.current.setWireframeMode(wireframeMode)
+  }, [wireframeMode, isInitialized])
+
   // Sync placed items from store to scene
   useEffect(() => {
     if (!isInitialized || !scene3DRef.current || !itemFactoryRef.current) return
@@ -390,11 +449,21 @@ export function SceneInteraction({ className = '', onObjectSelect, onObjectTrans
           clone.position.set(...placedItem.position)
           clone.rotation.y = THREE.MathUtils.degToRad(placedItem.rotation)
           clone.userData.isFurniture = true
+          clone.userData.isDoorWindow = (item.type === '7' || item.type === '3')
           clone.userData.itemId = placedItem.id
+          clone.userData.wallIndex = null
           scene.add(clone)
 
-          if (placementSystemRef.current) {
+          if (placementSystemRef.current && !clone.userData.isDoorWindow) {
             placementSystemRef.current.registerCollisionBox(placedItem.id, clone)
+          }
+
+          if (clone.userData.isDoorWindow && doorWindowSystemRef.current) {
+            doorWindowSystemRef.current.createOpeningForItem(
+              new THREE.Vector3(...placedItem.position),
+              THREE.MathUtils.degToRad(placedItem.rotation),
+              placedItem.id
+            )
           }
         }
       }
@@ -406,6 +475,9 @@ export function SceneInteraction({ className = '', onObjectSelect, onObjectTrans
         scene.remove(obj)
         if (placementSystemRef.current) {
           placementSystemRef.current.unregisterCollisionBox(id)
+        }
+        if (doorWindowSystemRef.current) {
+          doorWindowSystemRef.current.removeWallOpening(id)
         }
         obj.traverse((child) => {
           if (child instanceof THREE.Mesh) {
@@ -457,7 +529,7 @@ export function SceneInteraction({ className = '', onObjectSelect, onObjectTrans
     return () => window.removeEventListener('resize', handleResize)
   }, [])
 
-  // Expose placement functions to window object for catalog integration
+  // Expose placement functions and wall visibility to window object for catalog integration
   useEffect(() => {
     if (typeof window !== 'undefined') {
       (window as any).startItemPlacement = (item: Item) => {
@@ -469,14 +541,19 @@ export function SceneInteraction({ className = '', onObjectSelect, onObjectTrans
       (window as any).confirmItemPlacement = () => {
         confirmItemPlacement()
       }
+      (window as any).setWallVisibility = (wallIndex: number, visible: boolean) => {
+        if (roomRef.current) {
+          roomRef.current.setWallVisibility(wallIndex, visible)
+        }
+      }
     }
     
-    // Cleanup
     return () => {
       if (typeof window !== 'undefined') {
         delete (window as any).startItemPlacement
         delete (window as any).cancelItemPlacement
         delete (window as any).confirmItemPlacement
+        delete (window as any).setWallVisibility
       }
     }
   }, [startItemPlacement, cancelItemPlacement, confirmItemPlacement])
