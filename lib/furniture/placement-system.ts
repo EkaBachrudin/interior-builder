@@ -163,33 +163,38 @@ export class PlacementSystem {
   /**
    * Place the current model at the last valid position
    */
-  public placeModel(): PlacementResult | null {
+  public placeModel(itemId: string): PlacementResult | null {
     if (!this.previewMesh || !this.currentModel || !this.previewMesh.visible) {
       return null
     }
 
     const position = this.previewMesh.position.clone()
+    const rotation = this.previewMesh.rotation.y
     const isValid = this.checkCollision(position, this.currentModel)
 
     if (!isValid) {
       return {
         success: false,
         position,
-        rotation: 0,
+        rotation: THREE.MathUtils.radToDeg(rotation),
         valid: false,
         reason: 'Collision detected with another object'
       }
     }
 
-    // Clone the model for placement
     const placedModel = this.currentModel.clone(true)
     placedModel.position.copy(position)
-    placedModel.rotation.y = 0 // Default rotation
+    placedModel.rotation.y = rotation
+    placedModel.userData.isFurniture = true
+    placedModel.userData.itemId = itemId
+    this.scene.add(placedModel)
+
+    this.registerCollisionBox(itemId, placedModel)
 
     return {
       success: true,
       position,
-      rotation: 0,
+      rotation: THREE.MathUtils.radToDeg(rotation),
       valid: true
     }
   }

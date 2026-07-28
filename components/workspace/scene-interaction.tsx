@@ -7,7 +7,7 @@ import { ItemFactory } from '@/lib/furniture/item-factory'
 import { PlacementSystem } from '@/lib/furniture/placement-system'
 import { ManipulationControls } from '@/lib/furniture/manipulation-controls'
 import * as THREE from 'three'
-import { Item } from '@/lib/constants'
+import { Item, ITEMS } from '@/lib/constants'
 
 interface SceneInteractionProps {
   className?: string
@@ -173,6 +173,20 @@ export function SceneInteraction({ className = '', onObjectSelect, onObjectTrans
     }
   }, []) // Empty dependency array - run only once
 
+  // Preload models for any placedItems not yet cached (e.g. from saved designs)
+  useEffect(() => {
+    if (!isInitialized || !itemFactoryRef.current || placedItems.length === 0) return
+
+    const ITEMS_MAP = new Map(ITEMS.map(item => [item.key, item]))
+    const modelsToPreload = placedItems
+      .map(pi => ITEMS_MAP.get(pi.itemKey))
+      .filter((item): item is Item => item !== undefined && !itemFactoryRef.current!.isModelCached(item.model))
+
+    if (modelsToPreload.length > 0) {
+      Promise.all(modelsToPreload.map(item => itemFactoryRef.current!.loadModel(item)))
+    }
+  }, [isInitialized, placedItems.length])
+
   // Handle item placement from catalog
   const startItemPlacement = useCallback(async (item: Item) => {
     if (!itemFactoryRef.current || !placementSystemRef.current) return
@@ -216,18 +230,20 @@ export function SceneInteraction({ className = '', onObjectSelect, onObjectTrans
   const confirmItemPlacement = useCallback(() => {
     if (!placementSystemRef.current || !placingItem) return
 
-    const result = placementSystemRef.current.placeModel()
-    
+    const itemId = `item-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
+    const result = placementSystemRef.current.placeModel(itemId)
+
     if (result && result.success && result.valid) {
-      // Add the item to the store
       addItem(placingItem, [
         result.position.x,
         result.position.y,
         result.position.z
-      ])
+      ], itemId)
+    } else {
+      cancelItemPlacement()
+      return
     }
 
-    // Stop placement mode
     cancelItemPlacement()
   }, [placingItem, addItem, cancelItemPlacement])
 
@@ -343,34 +359,67 @@ export function SceneInteraction({ className = '', onObjectSelect, onObjectTrans
 
   // Sync placed items from store to scene
   useEffect(() => {
-    if (!isInitialized || !scene3DRef.current) return
+    if (!isInitialized || !scene3DRef.current || !itemFactoryRef.current) return
 
     const scene = scene3DRef.current.getScene()
+    const ITEMS_MAP = new Map(ITEMS.map(item => [item.key, item]))
 
-    // Remove all existing furniture objects
-    const objectsToRemove: THREE.Object3D[] = []
+    // Build map of existing furniture objects in scene
+    const existingObjects = new Map<string, THREE.Object3D>()
     scene.traverse((object) => {
-      if (object.userData.isFurniture) {
-        objectsToRemove.push(object)
+      if (object.userData.isFurniture && object.userData.itemId) {
+        existingObjects.set(object.userData.itemId, object)
       }
     })
-    objectsToRemove.forEach(obj => scene.remove(obj))
 
-    // Add placed items from store
+    const newIds = new Set<string>()
+
     placedItems.forEach((placedItem) => {
-      // This would need to be implemented with actual model loading
-      // For now, we'll create a simple placeholder
-      const geometry = new THREE.BoxGeometry(50, 50, 50)
-      const material = new THREE.MeshStandardMaterial({ color: 0x00ff00 })
-      const mesh = new THREE.Mesh(geometry, material)
-      
-      mesh.position.set(...placedItem.position)
-      mesh.rotation.y = THREE.MathUtils.degToRad(placedItem.rotation)
-      mesh.scale.set(placedItem.scale, placedItem.scale, placedItem.scale)
-      mesh.userData.isFurniture = true
-      mesh.userData.itemId = placedItem.id
-      
-      scene.add(mesh)
+      const item = ITEMS_MAP.get(placedItem.itemKey)
+      if (!item) return
+
+      newIds.add(placedItem.id)
+
+      if (existingObjects.has(placedItem.id)) {
+        const obj = existingObjects.get(placedItem.id)!
+        obj.position.set(...placedItem.position)
+        obj.rotation.y = THREE.MathUtils.degToRad(placedItem.rotation)
+        obj.scale.set(placedItem.scale, placedItem.scale, placedItem.scale)
+      } else {
+        const clone = itemFactoryRef.current!.createModelClone(item.model)
+        if (clone) {
+          clone.position.set(...placedItem.position)
+          clone.rotation.y = THREE.MathUtils.degToRad(placedItem.rotation)
+          clone.scale.set(placedItem.scale, placedItem.scale, placedItem.scale)
+          clone.userData.isFurniture = true
+          clone.userData.itemId = placedItem.id
+          scene.add(clone)
+
+          if (placementSystemRef.current) {
+            placementSystemRef.current.registerCollisionBox(placedItem.id, clone)
+          }
+        }
+      }
+    })
+
+    // Remove objects that are no longer in placedItems
+    existingObjects.forEach((obj, id) => {
+      if (!newIds.has(id)) {
+        scene.remove(obj)
+        if (placementSystemRef.current) {
+          placementSystemRef.current.unregisterCollisionBox(id)
+        }
+        obj.traverse((child) => {
+          if (child instanceof THREE.Mesh) {
+            child.geometry?.dispose()
+            if (Array.isArray(child.material)) {
+              child.material.forEach(m => m.dispose())
+            } else {
+              child.material?.dispose()
+            }
+          }
+        })
+      }
     })
 
   }, [placedItems, isInitialized])
