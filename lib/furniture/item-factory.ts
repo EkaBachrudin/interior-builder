@@ -1,5 +1,6 @@
 import * as THREE from 'three'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
+import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader.js'
 import { Item } from '../constants'
 
 export interface LoadedModel {
@@ -22,6 +23,9 @@ export class ItemFactory {
 
   constructor() {
     this.loader = new GLTFLoader()
+    const dracoLoader = new DRACOLoader()
+    dracoLoader.setDecoderPath('/draco/')
+    this.loader.setDRACOLoader(dracoLoader)
   }
 
   /**
