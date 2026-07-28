@@ -72,6 +72,14 @@ export class ItemFactory {
           const size = new THREE.Vector3()
           boundingBox.getSize(size)
 
+          // Normalize to centimeters if model is authored in meters
+          const maxDimension = Math.max(size.x, size.y, size.z)
+          if (maxDimension > 0 && maxDimension < 20) {
+            scene.scale.set(100, 100, 100)
+            boundingBox.setFromObject(scene)
+            boundingBox.getSize(size)
+          }
+
           const loadedModel: LoadedModel = {
             scene,
             originalBoundingBox: boundingBox,

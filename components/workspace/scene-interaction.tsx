@@ -384,13 +384,11 @@ export function SceneInteraction({ className = '', onObjectSelect, onObjectTrans
         const obj = existingObjects.get(placedItem.id)!
         obj.position.set(...placedItem.position)
         obj.rotation.y = THREE.MathUtils.degToRad(placedItem.rotation)
-        obj.scale.set(placedItem.scale, placedItem.scale, placedItem.scale)
       } else {
         const clone = itemFactoryRef.current!.createModelClone(item.model)
         if (clone) {
           clone.position.set(...placedItem.position)
           clone.rotation.y = THREE.MathUtils.degToRad(placedItem.rotation)
-          clone.scale.set(placedItem.scale, placedItem.scale, placedItem.scale)
           clone.userData.isFurniture = true
           clone.userData.itemId = placedItem.id
           scene.add(clone)

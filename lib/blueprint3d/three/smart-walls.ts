@@ -91,8 +91,8 @@ export class SmartWallsSystem {
   }
 
   public registerWall(mesh: THREE.Mesh, index: number, roomWidth: number, roomHeight: number): void {
-    const width = roomWidth * 100
-    const height = roomHeight * 100
+    const width = roomWidth
+    const height = roomHeight
     const wallHeight = 250
 
     // Calculate wall center and normal based on index
