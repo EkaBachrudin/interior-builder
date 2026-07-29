@@ -101,8 +101,8 @@ export class Walls {
     const mesh = new THREE.Mesh(geometry, material)
     mesh.position.copy(config.position)
     mesh.rotation.copy(config.rotation)
-    mesh.castShadow = true
-    mesh.receiveShadow = true
+    mesh.castShadow = false
+    mesh.receiveShadow = false
     mesh.userData.wallIndex = index
 
     return mesh
