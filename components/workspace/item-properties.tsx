@@ -140,7 +140,7 @@ export function ItemProperties() {
             <button
               key={angle}
               onClick={() => handleRotationChange(angle.toString())}
-              className="px-3 py-1 text-sm bg-gray-100 hover:bg-gray-200 rounded transition-colors"
+              className="px-3 py-1 text-sm text-gray-700 bg-gray-100 hover:bg-gray-200 rounded transition-colors"
             >
               {angle}°
             </button>

@@ -1,17 +1,9 @@
 // Item categories
-export type ItemCategory =
-  | 'bed'
+export type ItemCategory =  
   | 'drawer'
-  | 'wardrobe'
   | 'light'
-  | 'storage'
   | 'table'
   | 'chair'
-  | 'sofa'
-  | 'armchair'
-  | 'stool'
-  | 'door'
-  | 'window'
   | 'electronics'
   | 'decor'
 

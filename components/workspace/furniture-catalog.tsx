@@ -5,35 +5,19 @@ import { ITEMS, Item, ItemCategory } from '@/lib/constants'
 import { useInteriorStore } from '@/lib/store'
 
 const CATEGORIES: ItemCategory[] = [
-  'bed',
   'drawer', 
-  'wardrobe',
   'light',
-  'storage',
   'table',
   'chair',
-  'sofa',
-  'armchair',
-  'stool',
-  'door',
-  'window',
   'electronics',
   'decor'
 ]
 
 const CATEGORY_LABELS: Record<ItemCategory, string> = {
-  bed: 'Beds',
   drawer: 'Drawers',
-  wardrobe: 'Wardrobes',
   light: 'Lighting',
-  storage: 'Storage',
   table: 'Tables',
   chair: 'Chairs',
-  sofa: 'Sofas',
-  armchair: 'Armchairs',
-  stool: 'Stools',
-  door: 'Doors',
-  window: 'Windows',
   electronics: 'Electronics',
   decor: 'Decor'
 }
@@ -68,7 +52,7 @@ export function FurnitureCatalog() {
   }
 
   return (
-    <div className={`flex flex-col bg-white border-r border-gray-200 transition-all duration-300 ${
+    <div className={`flex flex-col h-full bg-white border-r border-gray-200 transition-all duration-300 ${
       isCollapsed ? 'w-12' : 'w-80'
     }`}>
       {/* Header */}
