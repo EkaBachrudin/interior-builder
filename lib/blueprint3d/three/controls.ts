@@ -5,6 +5,8 @@ export interface ControlsConfig {
   zoomSpeed: number
   minDistance: number
   maxDistance: number
+  minTargetY: number
+  minCameraY: number
 }
 
 export class CameraControls {
@@ -13,6 +15,8 @@ export class CameraControls {
   public zoomSpeed: number
   public minDistance: number
   public maxDistance: number
+  public minTargetY: number
+  public minCameraY: number
 
   private camera: THREE.PerspectiveCamera
   private domElement: HTMLElement
@@ -37,6 +41,8 @@ export class CameraControls {
     this.zoomSpeed = config.zoomSpeed
     this.minDistance = config.minDistance
     this.maxDistance = config.maxDistance
+    this.minTargetY = config.minTargetY
+    this.minCameraY = config.minCameraY
 
     this.setupEventListeners()
     this.updateSphericalFromCamera()
@@ -117,6 +123,8 @@ export class CameraControls {
     panUp.setFromMatrixColumn(this.camera.matrix, 1)
     panUp.multiplyScalar(2 * deltaY * targetDistance / this.domElement.clientHeight)
     this.target.add(panUp)
+
+    this.target.y = Math.max(this.target.y, this.minTargetY)
   }
 
   private zoom(zoomFactor: number): void {
@@ -142,7 +150,18 @@ export class CameraControls {
     const offset = new THREE.Vector3()
     offset.setFromSpherical(this.spherical)
     this.camera.position.copy(this.target).add(offset)
+
+    this.clampCameraY()
+
     this.camera.lookAt(this.target)
+  }
+
+  private clampCameraY(): void {
+    if (this.camera.position.y < this.minCameraY) {
+      this.camera.position.y = this.minCameraY
+      const newOffset = this.camera.position.clone().sub(this.target)
+      this.spherical.setFromVector3(newOffset)
+    }
   }
 
   public dispose(): void {
@@ -159,6 +178,7 @@ export class CameraControls {
 
   public setTarget(target: THREE.Vector3): void {
     this.target.copy(target)
+    this.target.y = Math.max(this.target.y, this.minTargetY)
     this.updateSphericalFromCamera()
   }
 }

@@ -16,6 +16,8 @@ export interface Configuration {
     zoomSpeed: number
     minDistance: number
     maxDistance: number
+    minTargetY: number
+    minCameraY: number
   }
   room: {
     defaultWidth: number
@@ -42,7 +44,9 @@ export const DEFAULT_CONFIG: Configuration = {
     rotateSpeed: 0.5,
     zoomSpeed: 1.0,
     minDistance: 0,
-    maxDistance: 1500
+    maxDistance: 1500,
+    minTargetY: 50,
+    minCameraY: 50
   },
   room: {
     defaultWidth: 4,
