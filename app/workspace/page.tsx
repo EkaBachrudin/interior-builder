@@ -4,6 +4,7 @@ import { SceneInteraction } from '@/components/workspace/scene-interaction'
 import { FurnitureCatalog } from '@/components/workspace/furniture-catalog'
 import { RoomControls } from '@/components/workspace/room-controls'
 import { ItemProperties } from '@/components/workspace/item-properties'
+import { SummaryPanel } from '@/components/workspace/summary-panel'
 import { useState } from 'react'
 import { useInteriorStore } from '@/lib/store'
 
@@ -128,6 +129,9 @@ export default function WorkspacePage() {
                 </svg>
               </button>
             </div>
+
+            {/* Summary Panel */}
+            <SummaryPanel />
 
           </div>
 

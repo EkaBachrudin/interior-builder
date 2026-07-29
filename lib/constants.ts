@@ -19,6 +19,7 @@ export interface Item {
   description?: string
   placementType?: FurniturePlacement
   targetMaxDimension?: number
+  weeklyRent: number
 }
 
 // Items data
@@ -32,7 +33,8 @@ export const ITEMS: Item[] = [
     type: '1',
     category: 'light',
     placementType: 'surface',
-    targetMaxDimension: 50
+    targetMaxDimension: 50,
+    weeklyRent: 5
   },
   // Decor
   {
@@ -43,7 +45,8 @@ export const ITEMS: Item[] = [
     type: '1',
     category: 'decor',
     placementType: 'surface',
-    targetMaxDimension: 30
+    targetMaxDimension: 30,
+    weeklyRent: 3
   },
   // Chairs
   {
@@ -52,7 +55,8 @@ export const ITEMS: Item[] = [
     image: '',
     model: '/assets/chair-1.glb',
     type: '1',
-    category: 'chair'
+    category: 'chair',
+    weeklyRent: 12
   },
   {
     key: 'chairTwo',
@@ -60,7 +64,8 @@ export const ITEMS: Item[] = [
     image: '',
     model: '/assets/chair-2.glb',
     type: '1',
-    category: 'chair'
+    category: 'chair',
+    weeklyRent: 15
   },
   // Drawers
   {
@@ -69,7 +74,8 @@ export const ITEMS: Item[] = [
     image: '',
     model: '/assets/furniture-1.glb',
     type: '1',
-    category: 'drawer'
+    category: 'drawer',
+    weeklyRent: 20
   },
   // Tables
   {
@@ -78,7 +84,8 @@ export const ITEMS: Item[] = [
     image: '',
     model: '/assets/L-table-1.glb',
     type: '1',
-    category: 'table'
+    category: 'table',
+    weeklyRent: 35
   },
   {
     key: 'lTableTwo',
@@ -86,7 +93,8 @@ export const ITEMS: Item[] = [
     image: '',
     model: '/assets/L-table-2.glb',
     type: '1',
-    category: 'table'
+    category: 'table',
+    weeklyRent: 25
   },
   // Electronics
   {
@@ -97,7 +105,8 @@ export const ITEMS: Item[] = [
     type: '1',
     category: 'electronics',
     placementType: 'surface',
-    targetMaxDimension: 120
+    targetMaxDimension: 120,
+    weeklyRent: 18
   },
   {
     key: 'monitorUltrawide',
@@ -107,7 +116,8 @@ export const ITEMS: Item[] = [
     type: '1',
     category: 'electronics',
     placementType: 'surface',
-    targetMaxDimension: 120
+    targetMaxDimension: 120,
+    weeklyRent: 25
   }
 ]
 

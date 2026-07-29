@@ -159,6 +159,9 @@ export function FurnitureCatalog() {
                   <div className="text-xs text-gray-500 mt-1 capitalize">
                     {item.category}
                   </div>
+                  <div className="text-xs font-medium text-blue-600 mt-0.5">
+                    ${item.weeklyRent}/wk
+                  </div>
                 </button>
               ))}
             </div>
