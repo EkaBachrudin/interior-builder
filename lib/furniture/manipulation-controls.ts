@@ -25,6 +25,11 @@ export class ManipulationControls {
   private onDragStartCallback: (() => void) | null = null
   private onDragEndCallback: (() => void) | null = null
   
+  private onBoundsConstraint: ((position: THREE.Vector3, object: THREE.Object3D) => THREE.Vector3) | null = null
+  private onCollisionCheck: ((position: THREE.Vector3, object: THREE.Object3D) => boolean) | null = null
+  private snapEnabled: boolean = false
+  private gridSize: number = 10
+  
   // Selection highlighting
   private selectionBox: any = null
   private originalMaterials: Map<THREE.Mesh, THREE.Material | THREE.Material[]> = new Map()
@@ -134,7 +139,24 @@ export class ManipulationControls {
     this.raycaster.setFromCamera(this.mouse, this.camera)
     
     if (this.raycaster.ray.intersectPlane(this.plane, this.intersectionPoint)) {
-      this.state.selectedObject.position.copy(this.intersectionPoint)
+      let targetPosition = this.intersectionPoint.clone()
+
+      if (this.onBoundsConstraint && this.state.selectedObject) {
+        targetPosition = this.onBoundsConstraint(targetPosition, this.state.selectedObject)
+      }
+
+      if (this.snapEnabled) {
+        targetPosition.x = Math.round(targetPosition.x / this.gridSize) * this.gridSize
+        targetPosition.z = Math.round(targetPosition.z / this.gridSize) * this.gridSize
+      }
+
+      if (this.onCollisionCheck && this.state.selectedObject) {
+        if (!this.onCollisionCheck(targetPosition, this.state.selectedObject)) {
+          return
+        }
+      }
+
+      this.state.selectedObject.position.copy(targetPosition)
       
       if (this.onTransformCallback) {
         this.onTransformCallback(this.state.selectedObject)
@@ -333,11 +355,41 @@ export class ManipulationControls {
   public setPosition(position: THREE.Vector3): void {
     if (!this.state.selectedObject) return
     
-    this.state.selectedObject.position.copy(position)
+    let targetPosition = position.clone()
+
+    if (this.onBoundsConstraint && this.state.selectedObject) {
+      targetPosition = this.onBoundsConstraint(targetPosition, this.state.selectedObject)
+    }
+
+    if (this.snapEnabled) {
+      targetPosition.x = Math.round(targetPosition.x / this.gridSize) * this.gridSize
+      targetPosition.z = Math.round(targetPosition.z / this.gridSize) * this.gridSize
+    }
+
+    if (this.onCollisionCheck && this.state.selectedObject) {
+      if (!this.onCollisionCheck(targetPosition, this.state.selectedObject)) {
+        return
+      }
+    }
+    
+    this.state.selectedObject.position.copy(targetPosition)
     
     if (this.onTransformCallback) {
       this.onTransformCallback(this.state.selectedObject)
     }
+  }
+
+  public setBoundsConstraint(callback: (position: THREE.Vector3, object: THREE.Object3D) => THREE.Vector3): void {
+    this.onBoundsConstraint = callback
+  }
+
+  public setCollisionCheck(callback: (position: THREE.Vector3, object: THREE.Object3D) => boolean): void {
+    this.onCollisionCheck = callback
+  }
+
+  public setSnapToGrid(enabled: boolean, gridSize: number = 10): void {
+    this.snapEnabled = enabled
+    this.gridSize = gridSize
   }
 
   /**

@@ -9,6 +9,7 @@ import { ManipulationControls } from '@/lib/furniture/manipulation-controls'
 import { DoorWindowSystem } from '@/lib/furniture/door-window-system'
 import * as THREE from 'three'
 import { Item, ITEMS } from '@/lib/constants'
+import { clampPositionToRoom } from '@/lib/blueprint3d/core/utils'
 
 interface SceneInteractionProps {
   className?: string
@@ -101,6 +102,20 @@ export function SceneInteraction({ className = '', onObjectSelect, onObjectTrans
           scene3D.getRenderer().domElement
         )
 
+        const placementSystem = placementSystemRef.current!
+        const manipulationControls = manipulationControlsRef.current
+
+        manipulationControls.setBoundsConstraint((pos, obj) => {
+          const { width, height } = useInteriorStore.getState().room
+          return clampPositionToRoom(pos, obj, width, height)
+        })
+
+        manipulationControls.setCollisionCheck((pos, obj) => {
+          return placementSystem.isPositionValid(pos, obj, obj.userData.itemId)
+        })
+
+        manipulationControls.setSnapToGrid(true, 10)
+
         doorWindowSystemRef.current = new DoorWindowSystem(
           scene3D.getScene(),
           scene3D.getCamera()
@@ -129,6 +144,11 @@ export function SceneInteraction({ className = '', onObjectSelect, onObjectTrans
               rotation: THREE.MathUtils.radToDeg(object.rotation.y),
               scale: object.scale.x
             })
+
+            // Update collision box while dragging
+            if (placementSystemRef.current && !object.userData.isDoorWindow) {
+              placementSystemRef.current.updateCollisionBox(objectId, object)
+            }
           }
         })
 
@@ -138,6 +158,11 @@ export function SceneInteraction({ className = '', onObjectSelect, onObjectTrans
 
         manipulationControlsRef.current.onDragEnd(() => {
           scene3D.controls.enabled = true
+
+          const obj = manipulationControlsRef.current?.getSelectedObject()
+          if (obj?.userData.itemId && placementSystemRef.current && !obj.userData.isDoorWindow) {
+            placementSystemRef.current.updateCollisionBox(obj.userData.itemId, obj)
+          }
         })
 
         // Start animation

@@ -1,5 +1,6 @@
 import * as THREE from 'three'
 import { Item, ItemCategory } from '../constants'
+import { clampPositionToRoom } from '../blueprint3d/core/utils'
 
 export interface PlacementResult {
   success: boolean
@@ -126,10 +127,6 @@ export class PlacementSystem {
       return null
     }
 
-    // Check if position is within room bounds
-    const halfWidth = (roomWidth * 100) / 2
-    const halfHeight = (roomHeight * 100) / 2
-
     let position = intersects.clone()
     
     // Snap to grid if enabled
@@ -138,13 +135,14 @@ export class PlacementSystem {
       position.z = Math.round(position.z / this.gridSize) * this.gridSize
     }
 
-    // Constrain to room bounds
-    position.x = Math.max(-halfWidth, Math.min(halfWidth, position.x))
-    position.z = Math.max(-halfHeight, Math.min(halfHeight, position.z))
-    position.y = 0 // Always place on floor
+    // Constrain to room bounds (accounts for item size)
+    const clampedPosition = clampPositionToRoom(position, this.currentModel, roomWidth, roomHeight)
+    position.x = clampedPosition.x
+    position.z = clampedPosition.z
+    position.y = 0
 
     // Check collision with other objects
-    const isValid = this.checkCollision(position, this.currentModel)
+    const isValid = this.isPositionValid(position, this.currentModel)
 
     // Update preview mesh
     this.previewMesh.position.copy(position)
@@ -170,7 +168,7 @@ export class PlacementSystem {
 
     const position = this.previewMesh.position.clone()
     const rotation = this.previewMesh.rotation.y
-    const isValid = this.checkCollision(position, this.currentModel)
+    const isValid = this.isPositionValid(position, this.currentModel)
 
     if (!isValid) {
       return {
@@ -202,7 +200,7 @@ export class PlacementSystem {
   /**
    * Check collision between potential placement and existing objects
    */
-  private checkCollision(position: THREE.Vector3, model: THREE.Group): boolean {
+  public isPositionValid(position: THREE.Vector3, model: THREE.Object3D, excludeObjectId?: string): boolean {
     if (this.collisionBoxes.length === 0) {
       return true
     }
@@ -214,6 +212,7 @@ export class PlacementSystem {
 
     // Check collision with all existing objects
     for (const collisionBox of this.collisionBoxes) {
+      if (collisionBox.objectId === excludeObjectId) continue
       if (tempBox.intersectsBox(collisionBox.box)) {
         return false
       }
@@ -255,8 +254,8 @@ export class PlacementSystem {
   /**
    * Check if a specific position is valid for placement
    */
-  public isValidPlacement(position: THREE.Vector3, model: THREE.Group): boolean {
-    return this.checkCollision(position, model)
+  public isValidPlacement(position: THREE.Vector3, model: THREE.Object3D): boolean {
+    return this.isPositionValid(position, model)
   }
 
   /**

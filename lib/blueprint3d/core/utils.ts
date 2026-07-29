@@ -34,6 +34,51 @@ export function clamp(value: number, min: number, max: number): number {
   return Math.max(min, Math.min(max, value))
 }
 
+export function clampPositionToRoom(
+  position: THREE.Vector3,
+  object: THREE.Object3D,
+  roomWidth: number,
+  roomHeight: number
+): THREE.Vector3 {
+  const box = new THREE.Box3().setFromObject(object)
+  const size = new THREE.Vector3()
+  box.getSize(size)
+
+  const halfRoomW = (roomWidth * 100) / 2
+  const halfRoomH = (roomHeight * 100) / 2
+  const halfItemW = size.x / 2
+  const halfItemD = size.z / 2
+
+  const minX = -halfRoomW + halfItemW
+  const maxX = halfRoomW - halfItemW
+  const minZ = -halfRoomH + halfItemD
+  const maxZ = halfRoomH - halfItemD
+
+  const clamped = position.clone()
+  if (minX < maxX) {
+    clamped.x = clamp(position.x, minX, maxX)
+  } else {
+    clamped.x = 0
+  }
+  if (minZ < maxZ) {
+    clamped.z = clamp(position.z, minZ, maxZ)
+  } else {
+    clamped.z = 0
+  }
+
+  return clamped
+}
+
+export function snapPositionToGrid(
+  position: THREE.Vector3,
+  gridSize: number
+): THREE.Vector3 {
+  const snapped = position.clone()
+  snapped.x = Math.round(snapped.x / gridSize) * gridSize
+  snapped.z = Math.round(snapped.z / gridSize) * gridSize
+  return snapped
+}
+
 export function lerp(start: number, end: number, t: number): number {
   return start * (1 - t) + end * t
 }
