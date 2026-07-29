@@ -17,7 +17,8 @@ const CATEGORIES: ItemCategory[] = [
   'stool',
   'door',
   'window',
-  'electronics'
+  'electronics',
+  'decor'
 ]
 
 const CATEGORY_LABELS: Record<ItemCategory, string> = {
@@ -33,7 +34,8 @@ const CATEGORY_LABELS: Record<ItemCategory, string> = {
   stool: 'Stools',
   door: 'Doors',
   window: 'Windows',
-  electronics: 'Electronics'
+  electronics: 'Electronics',
+  decor: 'Decor'
 }
 
 export function FurnitureCatalog() {
