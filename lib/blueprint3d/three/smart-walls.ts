@@ -287,61 +287,8 @@ export class SmartWallsSystem {
     this.transitionTimers.clear()
   }
 
-  public setConfig(newConfig: Partial<SmartWallsConfig>): void {
-    this.config = { ...this.config, ...newConfig }
-  }
-
-  public getConfig(): SmartWallsConfig {
-    return { ...this.config }
-  }
-
-  public getCurrentVisibility(): Map<number, boolean> {
-    const visibilityMap = new Map<number, boolean>()
-    this.walls.forEach(wall => {
-      visibilityMap.set(wall.index, !wall.isHidden)
-    })
-    return visibilityMap
-  }
-
-  public getWallData(): EnhancedWall[] {
-    return [...this.walls]
-  }
-
   public dispose(): void {
     this.stopTracking()
     this.walls = []
-  }
-
-  public isCameraInsideRoom(): boolean {
-    const pos = this.camera.position
-    // This is a simplified check - assumes room is centered at origin
-    // Real implementation should use actual room dimensions
-    return Math.abs(pos.x) < 200 && Math.abs(pos.z) < 200 && pos.y > 0 && pos.y < 250
-  }
-
-  public getDebugInfo(): {
-    cameraPosition: THREE.Vector3
-    cameraInsideRoom: boolean
-    wallStates: Array<{
-      index: number
-      normal: THREE.Vector3
-      dotProduct: number
-      isHidden: boolean
-    }>
-  } {
-    const cameraToCenter = this.roomCenter.clone().sub(this.camera.position).normalize()
-    
-    const wallStates = this.walls.map(wall => ({
-      index: wall.index,
-      normal: wall.normal.clone(),
-      dotProduct: wall.normal.dot(cameraToCenter),
-      isHidden: wall.isHidden
-    }))
-
-    return {
-      cameraPosition: this.camera.position.clone(),
-      cameraInsideRoom: this.isCameraInsideRoom(),
-      wallStates
-    }
   }
 }

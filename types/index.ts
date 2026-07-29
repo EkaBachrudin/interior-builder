@@ -17,10 +17,6 @@ export interface RoomState {
   wallTexture: string
   ceilingVisible: boolean
   wireframeMode: boolean
-  smartWallsEnabled: boolean
-  smartWallsSensitivity: number
-  smartWallsTransitionSpeed: number
-  smartWallsDebugMode: boolean
 }
 
 export interface DesignState {

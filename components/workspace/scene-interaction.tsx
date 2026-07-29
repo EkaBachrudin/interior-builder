@@ -42,9 +42,6 @@ export function SceneInteraction({ className = '', onObjectSelect, onObjectTrans
   const roomWallHeight = useInteriorStore((state) => state.room.wallHeight)
   const floorTexture = useInteriorStore((state) => state.room.floorTexture)
   const wallTexture = useInteriorStore((state) => state.room.wallTexture)
-  const smartWallsEnabled = useInteriorStore((state) => state.room.smartWallsEnabled)
-  const smartWallsSensitivity = useInteriorStore((state) => state.room.smartWallsSensitivity)
-  const smartWallsTransitionSpeed = useInteriorStore((state) => state.room.smartWallsTransitionSpeed)
   const wireframeMode = useInteriorStore((state) => state.room.wireframeMode)
   const placedItems = useInteriorStore((state) => state.placedItems)
   const addItem = useInteriorStore((state) => state.addItem)
@@ -395,47 +392,16 @@ export function SceneInteraction({ className = '', onObjectSelect, onObjectTrans
     }
   }, [roomWidth, roomHeight, roomWallHeight, floorTexture, wallTexture, isInitialized])
 
-  // Initialize smart walls system
+  // Initialize smart walls (always enabled)
   useEffect(() => {
     if (!roomRef.current || !scene3DRef.current || !isInitialized) return
 
     try {
-      console.log('Smart walls check - enabled:', smartWallsEnabled, 'initialized:', roomRef.current.isSmartWallsEnabled())
-      
-      if (smartWallsEnabled && !roomRef.current.isSmartWallsEnabled()) {
-        console.log('Initializing smart walls with camera')
-        // Initialize smart walls with camera
-        roomRef.current.initializeSmartWalls(scene3DRef.current.getCamera(), {
-          enabled: true,
-          sensitivity: smartWallsSensitivity,
-          transitionSpeed: smartWallsTransitionSpeed,
-          debugMode: false
-        })
-        console.log('Smart walls initialized successfully')
-      } else if (!smartWallsEnabled && roomRef.current.isSmartWallsEnabled()) {
-        console.log('Disabling smart walls')
-        // Disable smart walls
-        roomRef.current.setSmartWallsEnabled(false)
-      }
+      roomRef.current.initializeSmartWalls(scene3DRef.current.getCamera())
     } catch (error) {
       console.error('Failed to initialize smart walls:', error)
     }
-  }, [smartWallsEnabled, isInitialized])
-
-  // Update smart walls configuration
-  useEffect(() => {
-    if (!roomRef.current || !isInitialized || !smartWallsEnabled) return
-
-    try {
-      console.log('Updating smart walls config - sensitivity:', smartWallsSensitivity, 'speed:', smartWallsTransitionSpeed)
-      roomRef.current.setSmartWallsConfig({
-        sensitivity: smartWallsSensitivity,
-        transitionSpeed: smartWallsTransitionSpeed
-      })
-    } catch (error) {
-      console.error('Failed to update smart walls config:', error)
-    }
-  }, [smartWallsSensitivity, smartWallsTransitionSpeed, isInitialized, smartWallsEnabled])
+  }, [isInitialized])
 
   // Wireframe mode sync
   useEffect(() => {

@@ -52,11 +52,7 @@ const initialState = {
     floorTexture: '/assets/floor-textures/floor2.jpg',
     wallTexture: '/assets/wall-textures/wall1.jpg',
     ceilingVisible: false,
-    wireframeMode: false,
-    smartWallsEnabled: true,
-    smartWallsSensitivity: 0.5,
-    smartWallsTransitionSpeed: 300,
-    smartWallsDebugMode: false
+    wireframeMode: false
   },
   placedItems: [],
   selectedItemId: null,

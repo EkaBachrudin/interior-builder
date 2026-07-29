@@ -1,6 +1,6 @@
 import * as THREE from 'three'
 import { RoomConfig } from '../model/room'
-import { SmartWallsSystem, SmartWallsConfig } from './smart-walls'
+import { SmartWallsSystem } from './smart-walls'
 
 export class Walls {
   private meshes: THREE.Mesh[] = []
@@ -157,20 +157,16 @@ export class Walls {
   public initializeSmartWalls(
     camera: THREE.PerspectiveCamera,
     roomWidth: number,
-    roomHeight: number,
-    config?: Partial<SmartWallsConfig>
+    roomHeight: number
   ): void {
     this.camera = camera
     
-    // Create and initialize smart walls system
     this.smartWallsSystem = new SmartWallsSystem(
       camera,
       roomWidth,
-      roomHeight,
-      config
+      roomHeight
     )
 
-    // Register all existing walls with the smart system
     this.meshes.forEach((mesh, index) => {
       if (this.smartWallsSystem) {
         this.smartWallsSystem.registerWall(mesh, index, roomWidth, roomHeight)
@@ -187,39 +183,6 @@ export class Walls {
         this.smartWallsSystem!.registerWall(mesh, index, roomWidth, roomHeight)
       })
     }
-  }
-
-  public setSmartWallsEnabled(enabled: boolean): void {
-    if (this.smartWallsSystem) {
-      this.smartWallsSystem.setConfig({ enabled })
-      
-      // If disabling, make all walls visible
-      if (!enabled && this.scene) {
-        this.setVisibility(true, this.scene)
-      }
-    }
-  }
-
-  public setSmartWallsConfig(config: Partial<SmartWallsConfig>): void {
-    if (this.smartWallsSystem) {
-      this.smartWallsSystem.setConfig(config)
-    }
-  }
-
-  public getSmartWallsConfig(): SmartWallsConfig | null {
-    return this.smartWallsSystem ? this.smartWallsSystem.getConfig() : null
-  }
-
-  public isSmartWallsEnabled(): boolean {
-    return this.smartWallsSystem?.getConfig().enabled || false
-  }
-
-  public getCurrentWallVisibility(): Map<number, boolean> {
-    return this.smartWallsSystem?.getCurrentVisibility() || new Map()
-  }
-
-  public getSmartWallsDebugInfo() {
-    return this.smartWallsSystem?.getDebugInfo() || null
   }
 
   public disposeSmartWalls(): void {

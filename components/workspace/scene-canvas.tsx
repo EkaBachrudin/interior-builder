@@ -22,9 +22,6 @@ export function SceneCanvas({ className = '' }: SceneCanvasProps) {
   const roomWallHeight = useInteriorStore((state) => state.room.wallHeight)
   const floorTexture = useInteriorStore((state) => state.room.floorTexture)
   const wallTexture = useInteriorStore((state) => state.room.wallTexture)
-  const smartWallsEnabled = useInteriorStore((state) => state.room.smartWallsEnabled)
-  const smartWallsSensitivity = useInteriorStore((state) => state.room.smartWallsSensitivity)
-  const smartWallsTransitionSpeed = useInteriorStore((state) => state.room.smartWallsTransitionSpeed)
   const placedItems = useInteriorStore((state) => state.placedItems)
 
   // Initialize scene only once
@@ -88,41 +85,16 @@ export function SceneCanvas({ className = '' }: SceneCanvasProps) {
     }
   }, [roomWidth, roomHeight, roomWallHeight, floorTexture, wallTexture, isInitialized])
 
-  // Initialize smart walls system
+  // Initialize smart walls (always enabled)
   useEffect(() => {
     if (!roomRef.current || !scene3DRef.current || !isInitialized) return
 
     try {
-      if (smartWallsEnabled && !roomRef.current.isSmartWallsEnabled()) {
-        // Initialize smart walls with camera
-        roomRef.current.initializeSmartWalls(scene3DRef.current.getCamera(), {
-          enabled: true,
-          sensitivity: smartWallsSensitivity,
-          transitionSpeed: smartWallsTransitionSpeed,
-          debugMode: false
-        })
-      } else if (!smartWallsEnabled && roomRef.current.isSmartWallsEnabled()) {
-        // Disable smart walls
-        roomRef.current.setSmartWallsEnabled(false)
-      }
+      roomRef.current.initializeSmartWalls(scene3DRef.current.getCamera())
     } catch (error) {
       console.error('Failed to initialize smart walls:', error)
     }
-  }, [smartWallsEnabled, isInitialized])
-
-  // Update smart walls configuration
-  useEffect(() => {
-    if (!roomRef.current || !isInitialized || !smartWallsEnabled) return
-
-    try {
-      roomRef.current.setSmartWallsConfig({
-        sensitivity: smartWallsSensitivity,
-        transitionSpeed: smartWallsTransitionSpeed
-      })
-    } catch (error) {
-      console.error('Failed to update smart walls config:', error)
-    }
-  }, [smartWallsSensitivity, smartWallsTransitionSpeed, isInitialized, smartWallsEnabled])
+  }, [isInitialized])
 
   // Handle window resize
   useEffect(() => {

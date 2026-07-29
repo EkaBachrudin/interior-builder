@@ -2,7 +2,6 @@ import * as THREE from 'three'
 import { RoomConfig, DEFAULT_ROOM_CONFIG } from './room'
 import { Floor } from '../three/floor'
 import { Walls } from '../three/edge'
-import { SmartWallsConfig } from '../three/smart-walls'
 
 export class ProceduralRoom {
   private scene: THREE.Scene
@@ -10,7 +9,6 @@ export class ProceduralRoom {
   private floor: Floor
   private walls: Walls
   private camera: THREE.PerspectiveCamera | null = null
-  private smartWallsEnabled = false
 
   constructor(scene: THREE.Scene, config: Partial<RoomConfig> = {}) {
     this.scene = scene
@@ -53,8 +51,7 @@ export class ProceduralRoom {
     this.floor.create(this.config, this.scene)
     this.walls.create(this.config, this.scene)
     
-    // Re-initialize smart walls if enabled
-    if (this.smartWallsEnabled && this.camera) {
+    if (this.camera) {
       this.initializeSmartWalls(this.camera)
     }
   }
@@ -68,43 +65,13 @@ export class ProceduralRoom {
     this.camera = camera
   }
 
-  public initializeSmartWalls(
-    camera: THREE.PerspectiveCamera,
-    config?: Partial<SmartWallsConfig>
-  ): void {
+  public initializeSmartWalls(camera: THREE.PerspectiveCamera): void {
     this.camera = camera
     this.walls.initializeSmartWalls(
       camera,
       this.config.width,
-      this.config.height,
-      config
+      this.config.height
     )
-    this.smartWallsEnabled = true
-  }
-
-  public setSmartWallsEnabled(enabled: boolean): void {
-    this.walls.setSmartWallsEnabled(enabled)
-    this.smartWallsEnabled = enabled
-  }
-
-  public isSmartWallsEnabled(): boolean {
-    return this.walls.isSmartWallsEnabled()
-  }
-
-  public setSmartWallsConfig(config: Partial<SmartWallsConfig>): void {
-    this.walls.setSmartWallsConfig(config)
-  }
-
-  public getSmartWallsConfig(): SmartWallsConfig | null {
-    return this.walls.getSmartWallsConfig()
-  }
-
-  public getCurrentWallVisibility(): Map<number, boolean> {
-    return this.walls.getCurrentWallVisibility()
-  }
-
-  public getSmartWallsDebugInfo() {
-    return this.walls.getSmartWallsDebugInfo()
   }
 
   public dispose(): void {
