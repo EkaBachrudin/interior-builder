@@ -1,36 +1,37 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Ruang
+
+Workspace equipment rental for freelancers in Bali. Pick your gear (desks, monitors, chairs, private booths), design your layout in 3D, and book a desk in Canggu, Ubud, or Seminyak.
 
 ## Getting Started
 
-First, run the development server:
-
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Approach & tech choices
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- **Landing page** follows a warm monochrome editorial aesthetic with Geist Sans + Newsreader serif and Framer Motion scroll-entry animations.
+- **3D workspace** uses a custom Three.js engine (not React Three Fiber) with pointer-based object manipulation, procedural room generation, and real-time collision/grid snapping.
+- Touch support spans all three interaction layers: camera orbit/pinch, item placement, and furniture drag — via Pointer Events, native touch handlers, and `touch-action: none`.
+- State is managed through Zustand for the furniture catalog, placed items, room config, and undo/redo.
+- The workspace route and shared UI components (Button, Modal, Tooltip) share the same CSS variable-driven design system as the landing page.
 
-## Learn More
+## Stack
 
-To learn more about Next.js, take a look at the following resources:
+- [Next.js 16](https://nextjs.org) (App Router)
+- [Tailwind CSS v4](https://tailwindcss.com)
+- [Three.js](https://threejs.org)
+- [Zustand](https://zustand.docs.pmnd.rs)
+- [Framer Motion](https://motion.dev)
+- [Geist](https://vercel.com/font) + [Newsreader](https://fonts.google.com/specimen/Newsreader)
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## What I'd build with more time
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- Persistence for saved workspace layouts (currently lost on refresh).
+- Unit and integration tests for the 3D interaction systems.
+- Drag-and-drop from catalog directly onto the canvas.
+- More furniture models.
+- Onboarding walkthrough for first-time users.
