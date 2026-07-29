@@ -22,6 +22,8 @@ export class ManipulationControls {
   private state: ManipulationState
   private onSelectCallback: ((object: THREE.Object3D | null) => void) | null = null
   private onTransformCallback: ((object: THREE.Object3D) => void) | null = null
+  private onDragStartCallback: (() => void) | null = null
+  private onDragEndCallback: (() => void) | null = null
   
   // Selection highlighting
   private selectionBox: any = null
@@ -101,14 +103,18 @@ export class ManipulationControls {
         // Start dragging for translation
         if (this.state.currentMode === 'translate') {
           this.isDragging = true
+          this.state.isManipulating = true
           this.dragStartMouse.set(event.clientX, event.clientY)
           this.dragStartPosition.copy(selectedObject.position)
           
-          // Set up a horizontal plane for dragging
           this.plane.setFromNormalAndCoplanarPoint(
             new THREE.Vector3(0, 1, 0),
             selectedObject.position
           )
+
+          if (this.onDragStartCallback) {
+            this.onDragStartCallback()
+          }
         }
       }
     } else {
@@ -140,6 +146,10 @@ export class ManipulationControls {
     if (this.isDragging) {
       this.isDragging = false
       this.state.isManipulating = false
+
+      if (this.onDragEndCallback) {
+        this.onDragEndCallback()
+      }
     }
   }
 
@@ -208,8 +218,15 @@ export class ManipulationControls {
       this.removeSelectionHighlight(this.state.selectedObject)
     }
     
+    const wasDragging = this.isDragging
+    this.isDragging = false
     this.state.selectedObject = null
+    this.state.isManipulating = false
     
+    if (wasDragging && this.onDragEndCallback) {
+      this.onDragEndCallback()
+    }
+
     if (this.onSelectCallback) {
       this.onSelectCallback(null)
     }
@@ -349,6 +366,14 @@ export class ManipulationControls {
    */
   public onTransform(callback: (object: THREE.Object3D) => void): void {
     this.onTransformCallback = callback
+  }
+
+  public onDragStart(callback: () => void): void {
+    this.onDragStartCallback = callback
+  }
+
+  public onDragEnd(callback: () => void): void {
+    this.onDragEndCallback = callback
   }
 
   /**

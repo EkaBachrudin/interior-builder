@@ -132,6 +132,14 @@ export function SceneInteraction({ className = '', onObjectSelect, onObjectTrans
           }
         })
 
+        manipulationControlsRef.current.onDragStart(() => {
+          scene3D.controls.enabled = false
+        })
+
+        manipulationControlsRef.current.onDragEnd(() => {
+          scene3D.controls.enabled = true
+        })
+
         // Start animation
         scene3D.startAnimation()
 
