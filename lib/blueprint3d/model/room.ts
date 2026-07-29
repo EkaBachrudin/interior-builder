@@ -3,6 +3,7 @@ export interface RoomConfig {
   height: number
   wallHeight: number
   wallThickness: number
+  floorThickness: number
   floorTexture?: string
   wallTexture?: string
 }
@@ -17,5 +18,6 @@ export const DEFAULT_ROOM_CONFIG: RoomConfig = {
   width: 6,
   height: 6,
   wallHeight: 250,
-  wallThickness: 10
+  wallThickness: 15,
+  floorThickness: 10
 }

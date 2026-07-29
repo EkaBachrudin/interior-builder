@@ -19,9 +19,10 @@ export class Floor {
     }
 
     const width = config.width * 100
-    const height = config.height * 100
+    const depth = config.height * 100
+    const thickness = config.floorThickness || 10
 
-    const geometry = new THREE.PlaneGeometry(width, height)
+    const geometry = new THREE.BoxGeometry(width, thickness, depth)
     
     let material: THREE.Material
     
@@ -29,7 +30,7 @@ export class Floor {
       const texture = this.textureLoader.load(config.floorTexture)
       texture.wrapS = THREE.RepeatWrapping
       texture.wrapT = THREE.RepeatWrapping
-      texture.repeat.set(width / 300, height / 300)
+      texture.repeat.set(width / 300, depth / 300)
       
       material = new THREE.MeshStandardMaterial({
         map: texture,
@@ -45,7 +46,7 @@ export class Floor {
     }
 
     this.mesh = new THREE.Mesh(geometry, material)
-    this.mesh.rotation.x = -Math.PI / 2
+    this.mesh.position.y = -thickness / 2
     this.mesh.receiveShadow = true
     
     scene.add(this.mesh)
@@ -58,10 +59,10 @@ export class Floor {
     texture.wrapS = THREE.RepeatWrapping
     texture.wrapT = THREE.RepeatWrapping
     
-    const geometry = this.mesh.geometry as THREE.PlaneGeometry
-    const width = geometry.parameters.width
-    const height = geometry.parameters.height
-    texture.repeat.set(width / 300, height / 300)
+    if (this.mesh.geometry instanceof THREE.BoxGeometry) {
+      const geometry = this.mesh.geometry
+      texture.repeat.set(geometry.parameters.width / 300, geometry.parameters.depth / 300)
+    }
 
     if (this.mesh.material instanceof THREE.MeshStandardMaterial) {
       this.mesh.material.map = texture
