@@ -127,6 +127,13 @@ export const FLOOR_TEXTURES = [
     url: '/assets/floor-textures/floor1.jpg',
     stretch: false,
     scale: 300
+  },
+    {
+    name: 'Wooden Floor',
+    thumbnail: '/assets/floor-textures/floor2.jpg',
+    url: '/assets/floor-textures/floor2.jpg',
+    stretch: false,
+    scale: 300
   }
 ]
 
@@ -150,6 +157,13 @@ export const WALL_TEXTURES = [
     name: 'Wall 3',
     thumbnail: '/assets/wall-textures/wall3.jpg',
     url: '/assets/wall-textures/wall3.jpg',
+    stretch: false,
+    scale: 300
+  },
+   {
+    name: 'Wall 4',
+    thumbnail: '/assets/wall-textures/wall4.jpg',
+    url: '/assets/wall-textures/wall4.jpg',
     stretch: false,
     scale: 300
   }
