@@ -10,7 +10,7 @@ interface InteriorStore {
   
   // Items
   placedItems: PlacedItem[]
-  addItem: (item: Item, position: [number, number, number], itemId?: string) => void
+  addItem: (item: Item, position: [number, number, number], itemId?: string, placedOnItemId?: string) => void
   removeItem: (itemId: string) => void
   updateItem: (itemId: string, updates: Partial<PlacedItem>) => void
   clearItems: () => void
@@ -81,14 +81,15 @@ export const useInteriorStore = create<InteriorStore>()(
         get().addToHistory()
       },
 
-      addItem: (item, position, itemId?) => {
+      addItem: (item, position, itemId?, placedOnItemId?) => {
         const id = itemId || `item-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
         const newItem: PlacedItem = {
           id,
           itemKey: item.key,
           position,
           rotation: 0,
-          scale: 1
+          scale: 1,
+          placedOnItemId
         }
         
         set((state) => ({

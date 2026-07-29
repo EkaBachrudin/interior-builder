@@ -6,6 +6,7 @@ export interface PlacedItem {
   position: [number, number, number]
   rotation: number
   scale: number
+  placedOnItemId?: string
 }
 
 export interface RoomState {

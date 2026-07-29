@@ -111,7 +111,13 @@ export function SceneInteraction({ className = '', onObjectSelect, onObjectTrans
         })
 
         manipulationControls.setCollisionCheck((pos, obj) => {
-          return placementSystem.isPositionValid(pos, obj, obj.userData.itemId)
+          const objectId = obj.userData.itemId
+          const excludeIds: string[] = [objectId]
+          const placed = useInteriorStore.getState().placedItems.find(pi => pi.id === objectId)
+          if (placed?.placedOnItemId) {
+            excludeIds.push(placed.placedOnItemId)
+          }
+          return placementSystem.isPositionValid(pos, obj, excludeIds)
         })
 
         manipulationControls.setSnapToGrid(true, 10)
@@ -257,7 +263,7 @@ export function SceneInteraction({ className = '', onObjectSelect, onObjectTrans
         if (!modelClone) {
           throw new Error('Failed to create model clone')
         }
-        placementSystemRef.current.startPlacement(modelClone)
+        placementSystemRef.current.startPlacement(modelClone, item.placementType || 'floor')
         setPlacingItem(item)
         setIsPlacing(true)
       }
@@ -316,7 +322,7 @@ export function SceneInteraction({ className = '', onObjectSelect, onObjectTrans
           result.position.x,
           result.position.y,
           result.position.z
-        ], itemId)
+        ], itemId, result.placedOnItemId)
       }
     }
 

@@ -1,5 +1,5 @@
 import * as THREE from 'three'
-import { Item, ItemCategory } from '../constants'
+import { FurniturePlacement } from '../constants'
 import { clampPositionToRoom } from '../blueprint3d/core/utils'
 
 export interface PlacementResult {
@@ -8,6 +8,7 @@ export interface PlacementResult {
   rotation: number
   valid: boolean
   reason?: string
+  placedOnItemId?: string
 }
 
 export interface PlacementPreview {
@@ -34,6 +35,8 @@ export class PlacementSystem {
   private previewMesh: THREE.Mesh | null = null
   private previewMaterial: THREE.MeshBasicMaterial
   private currentModel: THREE.Group | null = null
+  private currentPlacementType: FurniturePlacement = 'floor'
+  private currentPlacedOnItemId: string | null = null
   private collisionBoxes: CollisionBox[] = []
 
   constructor(scene: THREE.Scene, camera: THREE.PerspectiveCamera) {
@@ -71,8 +74,10 @@ export class PlacementSystem {
   /**
    * Start placement mode for a specific model
    */
-  public startPlacement(model: THREE.Group): void {
+  public startPlacement(model: THREE.Group, placementType: FurniturePlacement = 'floor'): void {
     this.currentModel = model
+    this.currentPlacementType = placementType
+    this.currentPlacedOnItemId = null
     
     // Create preview mesh from model bounding box
     const box = new THREE.Box3().setFromObject(model)
@@ -117,17 +122,36 @@ export class PlacementSystem {
     this.mouse.x = (mouseX / window.innerWidth) * 2 - 1
     this.mouse.y = -(mouseY / window.innerHeight) * 2 + 1
 
-    // Raycast to find floor position
     this.raycaster.setFromCamera(this.mouse, this.camera)
-    const intersects = new THREE.Vector3()
-    this.raycaster.ray.intersectPlane(this.floorPlane, intersects)
 
-    if (!intersects) {
-      this.previewMesh.visible = false
-      return null
+    let position: THREE.Vector3
+    let placedOnItemId: string | null = null
+
+    if (this.currentPlacementType === 'surface') {
+      const surfaceResult = this.raycastFurnitureSurface()
+      if (surfaceResult) {
+        position = surfaceResult.position
+        placedOnItemId = surfaceResult.objectId
+      } else {
+        // Fallback to floor
+        const floorPoint = new THREE.Vector3()
+        if (!this.raycaster.ray.intersectPlane(this.floorPlane, floorPoint)) {
+          this.previewMesh.visible = false
+          return null
+        }
+        position = floorPoint.clone()
+      }
+    } else {
+      // Floor placement
+      const floorPoint = new THREE.Vector3()
+      if (!this.raycaster.ray.intersectPlane(this.floorPlane, floorPoint)) {
+        this.previewMesh.visible = false
+        return null
+      }
+      position = floorPoint.clone()
     }
 
-    let position = intersects.clone()
+    this.currentPlacedOnItemId = placedOnItemId
     
     // Snap to grid if enabled
     if (this.snapToGrid) {
@@ -139,10 +163,10 @@ export class PlacementSystem {
     const clampedPosition = clampPositionToRoom(position, this.currentModel, roomWidth, roomHeight)
     position.x = clampedPosition.x
     position.z = clampedPosition.z
-    position.y = 0
+    position.y = Math.max(position.y, 0)
 
-    // Check collision with other objects
-    const isValid = this.isPositionValid(position, this.currentModel)
+    // Check collision with other objects (exclude supporting object for surface items)
+    const isValid = this.isPositionValid(position, this.currentModel, placedOnItemId ? [placedOnItemId] : undefined)
 
     // Update preview mesh
     this.previewMesh.position.copy(position)
@@ -158,6 +182,31 @@ export class PlacementSystem {
     }
   }
 
+  private raycastFurnitureSurface(): { position: THREE.Vector3, objectId: string } | null {
+    const furnitureObjects: THREE.Object3D[] = []
+    this.scene.traverse((object) => {
+      if (object.userData.isFurniture) {
+        furnitureObjects.push(object)
+      }
+    })
+
+    if (furnitureObjects.length === 0) return null
+
+    const intersects = this.raycaster.intersectObjects(furnitureObjects, true)
+    if (intersects.length === 0) return null
+
+    const hit = intersects[0]
+    let furnitureRoot = hit.object
+    while (furnitureRoot.parent && !furnitureRoot.userData.isFurniture) {
+      furnitureRoot = furnitureRoot.parent
+    }
+
+    return {
+      position: hit.point.clone(),
+      objectId: furnitureRoot.userData.itemId || furnitureRoot.uuid
+    }
+  }
+
   /**
    * Place the current model at the last valid position
    */
@@ -168,7 +217,8 @@ export class PlacementSystem {
 
     const position = this.previewMesh.position.clone()
     const rotation = this.previewMesh.rotation.y
-    const isValid = this.isPositionValid(position, this.currentModel)
+    const placedOnItemId = this.currentPlacedOnItemId
+    const isValid = this.isPositionValid(position, this.currentModel, placedOnItemId ? [placedOnItemId] : undefined)
 
     if (!isValid) {
       return {
@@ -176,7 +226,8 @@ export class PlacementSystem {
         position,
         rotation: THREE.MathUtils.radToDeg(rotation),
         valid: false,
-        reason: 'Collision detected with another object'
+        reason: 'Collision detected with another object',
+        placedOnItemId: placedOnItemId || undefined
       }
     }
 
@@ -193,17 +244,20 @@ export class PlacementSystem {
       success: true,
       position,
       rotation: THREE.MathUtils.radToDeg(rotation),
-      valid: true
+      valid: true,
+      placedOnItemId: placedOnItemId || undefined
     }
   }
 
   /**
    * Check collision between potential placement and existing objects
    */
-  public isPositionValid(position: THREE.Vector3, model: THREE.Object3D, excludeObjectId?: string): boolean {
+  public isPositionValid(position: THREE.Vector3, model: THREE.Object3D, excludeObjectIds?: string[]): boolean {
     if (this.collisionBoxes.length === 0) {
       return true
     }
+
+    const excludeSet = new Set(excludeObjectIds || [])
 
     // Create bounding box for potential placement
     const tempBox = new THREE.Box3().setFromObject(model)
@@ -212,7 +266,7 @@ export class PlacementSystem {
 
     // Check collision with all existing objects
     for (const collisionBox of this.collisionBoxes) {
-      if (collisionBox.objectId === excludeObjectId) continue
+      if (excludeSet.has(collisionBox.objectId)) continue
       if (tempBox.intersectsBox(collisionBox.box)) {
         return false
       }

@@ -13,6 +13,8 @@ export type ItemCategory =
   | 'door'
   | 'window'
 
+export type FurniturePlacement = 'floor' | 'surface'
+
 export interface Item {
   key: string
   name: string
@@ -21,6 +23,7 @@ export interface Item {
   type: string
   category: ItemCategory
   description?: string
+  placementType?: FurniturePlacement
 }
 
 // Items data
@@ -135,7 +138,8 @@ export const ITEMS: Item[] = [
     image: 'https://cdn-images.archybase.com/archybase/blueprint3d/covers/light-1.png',
     model: 'https://cdn-images.archybase.com/archybase/blueprint3d/models/light-1.glb',
     type: '1',
-    category: 'light'
+    category: 'light',
+    placementType: 'surface'
   },
   {
     key: 'lightTwo',
@@ -162,7 +166,8 @@ export const ITEMS: Item[] = [
     image: 'https://cdn-images.archybase.com/archybase/blueprint3d/covers/light-4.jpg',
     model: 'https://cdn-images.archybase.com/archybase/blueprint3d/models/light-4.glb',
     type: '1',
-    category: 'light'
+    category: 'light',
+    placementType: 'surface'
   },
   // Storage
   {
