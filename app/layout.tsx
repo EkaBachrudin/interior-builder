@@ -1,16 +1,36 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Geist, Geist_Mono, Newsreader } from "next/font/google";
 import "./globals.css";
 
-const inter = Inter({
+const geistSans = Geist({
   subsets: ["latin"],
-  variable: "--font-inter",
+  variable: "--font-geist-sans",
+});
+
+const geistMono = Geist_Mono({
+  subsets: ["latin"],
+  variable: "--font-geist-mono",
+});
+
+const newsreader = Newsreader({
+  subsets: ["latin"],
+  variable: "--font-newsreader",
+  style: ["italic", "normal"],
 });
 
 export const metadata: Metadata = {
-  title: "Interior Builder - Design Your Perfect Space",
-  description: "Create beautiful room layouts with our interactive 3D interior builder. Choose from 70+ furniture pieces and customize every detail.",
-  keywords: ["interior design", "3D room planner", "furniture layout", "home design", "room builder"],
+  title: "Ruang — Workspace Equipment Rental in Bali",
+  description:
+    "Rent desks, chairs, monitors, and full workspace setups across Canggu, Ubud, and Seminyak. Built for freelancers who come to Bali to work.",
+  keywords: [
+    "workspace rental",
+    "Bali",
+    "freelancer",
+    "desk rental",
+    "monitor rental",
+    "coworking",
+    "remote work",
+  ],
 };
 
 export default function RootLayout({
@@ -21,7 +41,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${inter.variable} h-full antialiased`}
+      className={`${geistSans.variable} ${geistMono.variable} ${newsreader.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col font-sans">{children}</body>
     </html>
