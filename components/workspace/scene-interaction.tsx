@@ -345,6 +345,25 @@ export function SceneInteraction({ className = '', onObjectSelect, onObjectTrans
     }
   }, [isPlacing, roomWidth, roomHeight, placingItem])
 
+  // Handle touch movement for placement preview
+  const handleTouchMove = useCallback((event: TouchEvent) => {
+    if (!isPlacing || event.touches.length !== 1) return
+
+    const touch = event.touches[0]
+    const isDoorWindow = placingItem?.type === '7' || placingItem?.type === '3'
+
+    if (isDoorWindow && doorWindowSystemRef.current) {
+      doorWindowSystemRef.current.updatePlacement(touch.clientX, touch.clientY)
+    } else if (placementSystemRef.current) {
+      placementSystemRef.current.updatePlacement(
+        touch.clientX,
+        touch.clientY,
+        roomWidth,
+        roomHeight
+      )
+    }
+  }, [isPlacing, roomWidth, roomHeight, placingItem])
+
   // Handle mouse click for placement
   const handleClick = useCallback((event: MouseEvent) => {
     if (!isPlacing) return
@@ -359,6 +378,12 @@ export function SceneInteraction({ className = '', onObjectSelect, onObjectTrans
     }
   }, [isPlacing, confirmItemPlacement, cancelItemPlacement])
 
+  // Handle touch end for placement
+  const handleTouchEnd = useCallback(() => {
+    if (!isPlacing) return
+    confirmItemPlacement()
+  }, [isPlacing, confirmItemPlacement])
+
   // Setup event listeners for placement
   useEffect(() => {
     if (!isPlacing) return
@@ -366,12 +391,16 @@ export function SceneInteraction({ className = '', onObjectSelect, onObjectTrans
     window.addEventListener('mousemove', handleMouseMove)
     window.addEventListener('mousedown', handleClick)
     window.addEventListener('contextmenu', (e) => e.preventDefault())
+    window.addEventListener('touchmove', handleTouchMove, { passive: false })
+    window.addEventListener('touchend', handleTouchEnd)
 
     return () => {
       window.removeEventListener('mousemove', handleMouseMove)
       window.removeEventListener('mousedown', handleClick)
+      window.removeEventListener('touchmove', handleTouchMove)
+      window.removeEventListener('touchend', handleTouchEnd)
     }
-  }, [isPlacing, handleMouseMove, handleClick])
+  }, [isPlacing, handleMouseMove, handleClick, handleTouchMove, handleTouchEnd])
 
   // Update room configuration
   useEffect(() => {
@@ -552,6 +581,7 @@ export function SceneInteraction({ className = '', onObjectSelect, onObjectTrans
       <div 
         ref={containerRef} 
         className={`w-full h-full ${className}`}
+        style={{ touchAction: 'none' }}
       />
       
       {/* Placement UI Overlay */}
@@ -572,7 +602,7 @@ export function SceneInteraction({ className = '', onObjectSelect, onObjectTrans
             <div className="h-6 w-px bg-[var(--border)]" />
             
             <div className="text-sm text-[var(--muted)]">
-              <span className="font-medium">Click</span> to place
+              <span className="font-medium">Click / Tap</span> to place
             </div>
             <div className="text-sm text-[var(--muted)]">
               <span className="font-medium">Right-click</span> to cancel

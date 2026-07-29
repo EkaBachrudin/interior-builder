@@ -69,6 +69,9 @@ export class ManipulationControls {
   }
 
   private setupEventListeners(): void {
+    this.renderer.domElement.style.touchAction = 'none'
+    this.domElement.style.touchAction = 'none'
+
     this.domElement.addEventListener('pointerdown', this.onPointerDown.bind(this))
     this.domElement.addEventListener('pointermove', this.onPointerMove.bind(this))
     this.domElement.addEventListener('pointerup', this.onPointerUp.bind(this))
@@ -77,6 +80,7 @@ export class ManipulationControls {
 
   private onPointerDown(event: PointerEvent): void {
     if (this.state.isManipulating || event.button !== 0) return
+    event.preventDefault()
 
     // Calculate mouse position
     const rect = this.renderer.domElement.getBoundingClientRect()
@@ -129,6 +133,7 @@ export class ManipulationControls {
 
   private onPointerMove(event: PointerEvent): void {
     if (!this.isDragging || !this.state.selectedObject || this.state.currentMode !== 'translate') return
+    event.preventDefault()
 
     // Calculate mouse position
     const rect = this.renderer.domElement.getBoundingClientRect()
