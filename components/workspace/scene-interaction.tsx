@@ -184,6 +184,8 @@ export function SceneInteraction({ className = '', onObjectSelect, onObjectTrans
         const { width, height } = entry.contentRect
         if (width > 0 && height > 0 && !initializationRef.current) {
           initializeScene()
+        } else if (width > 0 && height > 0 && scene3DRef.current) {
+          scene3DRef.current.resize()
         }
       }
     })
