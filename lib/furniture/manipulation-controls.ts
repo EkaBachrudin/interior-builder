@@ -80,7 +80,6 @@ export class ManipulationControls {
 
   private onPointerDown(event: PointerEvent): void {
     if (this.state.isManipulating || event.button !== 0) return
-    event.preventDefault()
 
     // Calculate mouse position
     const rect = this.renderer.domElement.getBoundingClientRect()
@@ -101,6 +100,8 @@ export class ManipulationControls {
     const intersects = this.raycaster.intersectObjects(furnitureObjects, true)
     
     if (intersects.length > 0) {
+      event.preventDefault()
+
       let selectedObject = intersects[0].object
       while (selectedObject.parent && !selectedObject.userData.isFurniture) {
         selectedObject = selectedObject.parent

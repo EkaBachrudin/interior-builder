@@ -24,6 +24,44 @@ export interface Item {
 
 // Items data
 export const ITEMS: Item[] = [
+   // Tables
+  {
+    key: 'lTableOne',
+    name: 'L-Shaped Desk',
+    image: '',
+    model: '/assets/L-table-1.glb',
+    type: '1',
+    category: 'table',
+    weeklyRent: 35
+  },
+  {
+    key: 'lTableTwo',
+    name: 'Corner Table',
+    image: '',
+    model: '/assets/L-table-2.glb',
+    type: '1',
+    category: 'table',
+    weeklyRent: 25
+  },
+   // Chairs
+  {
+    key: 'chairOne',
+    name: 'Modern Chair',
+    image: '',
+    model: '/assets/chair-1.glb',
+    type: '1',
+    category: 'chair',
+    weeklyRent: 12
+  },
+  {
+    key: 'chairTwo',
+    name: 'Accent Chair',
+    image: '',
+    model: '/assets/chair-2.glb',
+    type: '1',
+    category: 'chair',
+    weeklyRent: 15
+  },
   // Lighting
   {
     key: 'lampOne',
@@ -48,25 +86,6 @@ export const ITEMS: Item[] = [
     targetMaxDimension: 30,
     weeklyRent: 3
   },
-  // Chairs
-  {
-    key: 'chairOne',
-    name: 'Modern Chair',
-    image: '',
-    model: '/assets/chair-1.glb',
-    type: '1',
-    category: 'chair',
-    weeklyRent: 12
-  },
-  {
-    key: 'chairTwo',
-    name: 'Accent Chair',
-    image: '',
-    model: '/assets/chair-2.glb',
-    type: '1',
-    category: 'chair',
-    weeklyRent: 15
-  },
   // Drawers
   {
     key: 'drawerOne',
@@ -76,25 +95,6 @@ export const ITEMS: Item[] = [
     type: '1',
     category: 'drawer',
     weeklyRent: 20
-  },
-  // Tables
-  {
-    key: 'lTableOne',
-    name: 'L-Shaped Desk',
-    image: '',
-    model: '/assets/L-table-1.glb',
-    type: '1',
-    category: 'table',
-    weeklyRent: 35
-  },
-  {
-    key: 'lTableTwo',
-    name: 'Corner Table',
-    image: '',
-    model: '/assets/L-table-2.glb',
-    type: '1',
-    category: 'table',
-    weeklyRent: 25
   },
   // Electronics
   {
