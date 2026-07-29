@@ -37,6 +37,7 @@ export class PlacementSystem {
   private currentModel: THREE.Group | null = null
   private currentPlacementType: FurniturePlacement = 'floor'
   private currentPlacedOnItemId: string | null = null
+  private currentBottomOffset: number = 0
   private collisionBoxes: CollisionBox[] = []
 
   constructor(scene: THREE.Scene, camera: THREE.PerspectiveCamera) {
@@ -83,6 +84,7 @@ export class PlacementSystem {
     const box = new THREE.Box3().setFromObject(model)
     const size = new THREE.Vector3()
     box.getSize(size)
+    this.currentBottomOffset = box.min.y
     
     const geometry = new THREE.BoxGeometry(size.x, size.y, size.z)
     this.previewMesh = new THREE.Mesh(geometry, this.previewMaterial.clone())
@@ -163,7 +165,7 @@ export class PlacementSystem {
     const clampedPosition = clampPositionToRoom(position, this.currentModel, roomWidth, roomHeight)
     position.x = clampedPosition.x
     position.z = clampedPosition.z
-    position.y = Math.max(position.y, 0)
+    position.y = Math.max(position.y - this.currentBottomOffset, 0)
 
     // Check collision with other objects (exclude supporting object for surface items)
     const isValid = this.isPositionValid(position, this.currentModel, placedOnItemId ? [placedOnItemId] : undefined)

@@ -12,6 +12,7 @@ export type ItemCategory =
   | 'stool'
   | 'door'
   | 'window'
+  | 'electronics'
 
 export type FurniturePlacement = 'floor' | 'surface'
 
@@ -24,6 +25,7 @@ export interface Item {
   category: ItemCategory
   description?: string
   placementType?: FurniturePlacement
+  targetMaxDimension?: number
 }
 
 // Items data
@@ -706,6 +708,18 @@ export const ITEMS: Item[] = [
     model: 'https://cdn-images.archybase.com/archybase/blueprint3d/models/window-1.glb',
     type: '3',
     category: 'window'
+  },
+  // Electronics
+  {
+    key: 'monitorOne',
+    name: 'Ultrawide Monitor',
+    description: 'A sleek ultrawide computer monitor with a modern stand. Perfect for home office or gaming desk setups.',
+    image: '',
+    model: '/assets/ultrawide_monitor.glb',
+    type: '1',
+    category: 'electronics',
+    placementType: 'surface',
+    targetMaxDimension: 120
   }
 ]
 

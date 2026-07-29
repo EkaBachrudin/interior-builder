@@ -610,8 +610,10 @@ export function SceneInteraction({ className = '', onObjectSelect, onObjectTrans
           <div className="flex items-center space-x-4">
             <div className="flex items-center space-x-2">
               <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                {placingItem && (
+                {placingItem && placingItem.image ? (
                   <img src={placingItem.image} alt={placingItem.name} className="w-6 h-6 object-cover rounded" />
+                ) : (
+                  <span className="text-xs text-blue-600 font-medium">{placingItem?.name?.charAt(0) || '?'}</span>
                 )}
               </div>
               <span className="font-medium text-gray-900">{placingItem?.name}</span>

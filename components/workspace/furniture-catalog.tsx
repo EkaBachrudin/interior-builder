@@ -16,7 +16,8 @@ const CATEGORIES: ItemCategory[] = [
   'armchair',
   'stool',
   'door',
-  'window'
+  'window',
+  'electronics'
 ]
 
 const CATEGORY_LABELS: Record<ItemCategory, string> = {
@@ -31,7 +32,8 @@ const CATEGORY_LABELS: Record<ItemCategory, string> = {
   armchair: 'Armchairs',
   stool: 'Stools',
   door: 'Doors',
-  window: 'Windows'
+  window: 'Windows',
+  electronics: 'Electronics'
 }
 
 export function FurnitureCatalog() {
@@ -162,11 +164,17 @@ export function FurnitureCatalog() {
                   className="group relative bg-gray-50 rounded-lg p-3 hover:bg-blue-50 hover:border-blue-200 border border-transparent transition-all"
                 >
                   <div className="aspect-square bg-white rounded-lg mb-2 overflow-hidden border border-gray-200">
-                    <img
-                      src={item.image}
-                      alt={item.name}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
-                    />
+                    {item.image ? (
+                      <img
+                        src={item.image}
+                        alt={item.name}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center bg-gray-100 text-gray-400 text-xs text-center p-2">
+                        {item.name}
+                      </div>
+                    )}
                   </div>
                   <div className="text-sm font-medium text-gray-900 line-clamp-2">
                     {item.name}

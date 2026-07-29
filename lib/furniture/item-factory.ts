@@ -82,6 +82,23 @@ export class ItemFactory {
             scene.scale.set(100, 100, 100)
             boundingBox.setFromObject(scene)
             boundingBox.getSize(size)
+          } else if (maxDimension > 500) {
+            const targetSize = 200
+            const scale = targetSize / maxDimension
+            scene.scale.set(scale, scale, scale)
+            boundingBox.setFromObject(scene)
+            boundingBox.getSize(size)
+          }
+
+          // Per-item target max dimension
+          if (item.targetMaxDimension) {
+            const currentMax = Math.max(size.x, size.y, size.z)
+            if (currentMax > 0) {
+              const targetScale = item.targetMaxDimension / currentMax
+              scene.scale.multiplyScalar(targetScale)
+              boundingBox.setFromObject(scene)
+              boundingBox.getSize(size)
+            }
           }
 
           const loadedModel: LoadedModel = {
