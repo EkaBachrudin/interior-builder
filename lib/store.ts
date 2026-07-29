@@ -1,7 +1,7 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import { Item } from './constants'
-import { PlacedItem, RoomState, DesignState, ViewMode, InteractionMode } from '../types'
+import { PlacedItem, RoomState, DesignState } from '../types'
 
 interface InteriorStore {
   // Room state
@@ -18,13 +18,6 @@ interface InteriorStore {
   // Selection
   selectedItemId: string | null
   selectItem: (itemId: string | null) => void
-  
-  // UI state
-  currentViewMode: ViewMode['type']
-  setViewMode: (mode: ViewMode['type']) => void
-  
-  currentInteractionMode: InteractionMode['type']
-  setInteractionMode: (mode: InteractionMode['type']) => void
   
   // Design management
   savedDesigns: DesignState[]
@@ -56,8 +49,6 @@ const initialState = {
   },
   placedItems: [],
   selectedItemId: null,
-  currentViewMode: '3d' as const,
-  currentInteractionMode: 'select' as const,
   savedDesigns: [],
   history: [],
   historyIndex: -1
@@ -115,14 +106,6 @@ export const useInteriorStore = create<InteriorStore>()(
 
       selectItem: (itemId) => {
         set({ selectedItemId: itemId })
-      },
-
-      setViewMode: (mode) => {
-        set({ currentViewMode: mode })
-      },
-
-      setInteractionMode: (mode) => {
-        set({ currentInteractionMode: mode })
       },
 
       saveDesign: (name) => {

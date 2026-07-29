@@ -3,7 +3,6 @@
 import { SceneInteraction } from '@/components/workspace/scene-interaction'
 import { FurnitureCatalog } from '@/components/workspace/furniture-catalog'
 import { RoomControls } from '@/components/workspace/room-controls'
-import { ControlBar } from '@/components/workspace/control-bar'
 import { ItemProperties } from '@/components/workspace/item-properties'
 import { useState } from 'react'
 import { useInteriorStore } from '@/lib/store'
@@ -14,6 +13,8 @@ export default function WorkspacePage() {
   const [showRoomSettings, setShowRoomSettings] = useState(false)
   
   const selectItem = useInteriorStore((state) => state.selectItem)
+  const undo = useInteriorStore((state) => state.undo)
+  const redo = useInteriorStore((state) => state.redo)
 
   const handleObjectSelect = (objectId: string | null) => {
     selectItem(objectId)
@@ -106,10 +107,30 @@ export default function WorkspacePage() {
                 </svg>
               </button>
             )}
+            {/* Undo / Redo */}
+            <div className="absolute top-4 right-4 z-10 flex items-center space-x-2">
+              <button
+                onClick={undo}
+                className="w-10 h-10 bg-white border border-gray-200 rounded-full shadow-lg flex items-center justify-center hover:bg-gray-50 transition-colors"
+                title="Undo (Ctrl+Z)"
+              >
+                <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" />
+                </svg>
+              </button>
+              <button
+                onClick={redo}
+                className="w-10 h-10 bg-white border border-gray-200 rounded-full shadow-lg flex items-center justify-center hover:bg-gray-50 transition-colors"
+                title="Redo (Ctrl+Y)"
+              >
+                <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 10h-10a8 8 0 00-8 8v2M21 10l-6 6m6-6l-6-6" />
+                </svg>
+              </button>
+            </div>
+
           </div>
 
-          {/* Bottom Control Bar */}
-          <ControlBar />
         </main>
 
         {/* Right Sidebar - Properties */}
