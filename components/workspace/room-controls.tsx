@@ -15,12 +15,7 @@ export function RoomControls() {
   }
 
   return (
-    <div className="bg-white border border-gray-200 rounded-lg p-4 space-y-4">
-      <h3 className="text-sm font-semibold text-gray-900 uppercase tracking-wide">
-        Room Settings
-      </h3>
-
-      {/* Dimensions */}
+    <div className="space-y-4">
       <div className="space-y-3">
         <div className="grid grid-cols-2 gap-3">
           <div>
