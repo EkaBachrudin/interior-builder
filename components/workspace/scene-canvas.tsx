@@ -22,7 +22,6 @@ export function SceneCanvas({ className = '' }: SceneCanvasProps) {
   const roomWallHeight = useInteriorStore((state) => state.room.wallHeight)
   const floorTexture = useInteriorStore((state) => state.room.floorTexture)
   const wallTexture = useInteriorStore((state) => state.room.wallTexture)
-  const wallsVisible = useInteriorStore((state) => state.room.wallsVisible)
   const smartWallsEnabled = useInteriorStore((state) => state.room.smartWallsEnabled)
   const smartWallsSensitivity = useInteriorStore((state) => state.room.smartWallsSensitivity)
   const smartWallsTransitionSpeed = useInteriorStore((state) => state.room.smartWallsTransitionSpeed)
@@ -124,17 +123,6 @@ export function SceneCanvas({ className = '' }: SceneCanvasProps) {
       console.error('Failed to update smart walls config:', error)
     }
   }, [smartWallsSensitivity, smartWallsTransitionSpeed, isInitialized, smartWallsEnabled])
-
-  // Update wall visibility
-  useEffect(() => {
-    if (!roomRef.current || !isInitialized) return
-
-    try {
-      roomRef.current.setWallsVisibility(wallsVisible)
-    } catch (error) {
-      console.error('Failed to update wall visibility:', error)
-    }
-  }, [wallsVisible, isInitialized])
 
   // Handle window resize
   useEffect(() => {

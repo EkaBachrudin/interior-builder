@@ -1,9 +1,7 @@
 'use client'
 
 import { useInteriorStore } from '@/lib/store'
-import { FLOOR_TEXTURES, WALL_TEXTURES, ROOM_PRESETS } from '@/lib/constants'
-
-const WALL_LABELS = ['Back Wall', 'Front Wall', 'Left Wall', 'Right Wall']
+import { FLOOR_TEXTURES, WALL_TEXTURES } from '@/lib/constants'
 
 export function RoomControls() {
   const room = useInteriorStore((state) => state.room)
@@ -16,42 +14,11 @@ export function RoomControls() {
     }
   }
 
-  const handlePresetSelect = (presetName: string) => {
-    const preset = ROOM_PRESETS.find(p => p.name === presetName)
-    if (!preset) return
-    updateRoom({
-      width: preset.width,
-      height: preset.height,
-      wallHeight: preset.wallHeight,
-      floorTexture: preset.floorTexture,
-      wallTexture: preset.wallTexture,
-      presetName: preset.name
-    })
-  }
-
   return (
     <div className="bg-white border border-gray-200 rounded-lg p-4 space-y-4">
       <h3 className="text-sm font-semibold text-gray-900 uppercase tracking-wide">
         Room Settings
       </h3>
-
-      {/* Room Presets */}
-      <div>
-        <label className="block text-xs font-medium text-gray-700 mb-2">
-          Room Preset
-        </label>
-        <select
-          value={room.presetName}
-          onChange={(e) => handlePresetSelect(e.target.value)}
-          className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-        >
-          {ROOM_PRESETS.map((preset) => (
-            <option key={preset.name} value={preset.name}>
-              {preset.name} ({preset.width}m &times; {preset.height}m)
-            </option>
-          ))}
-        </select>
-      </div>
 
       {/* Dimensions */}
       <div className="space-y-3">
@@ -176,57 +143,6 @@ export function RoomControls() {
         </div>
       </div>
 
-      {/* Wall Visibility Toggle */}
-      <div className="flex items-center justify-between pt-2 border-t border-gray-200">
-        <span className="text-sm font-medium text-gray-700">Show Walls</span>
-        <button
-          onClick={() => updateRoom({ wallsVisible: !room.wallsVisible })}
-          className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-            room.wallsVisible ? 'bg-blue-600' : 'bg-gray-200'
-          }`}
-        >
-          <span
-            className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-              room.wallsVisible ? 'translate-x-6' : 'translate-x-1'
-            }`}
-          />
-        </button>
-      </div>
-
-      {/* Individual Wall Visibility */}
-      {room.wallsVisible && (
-        <div className="pt-3 border-t border-gray-200 space-y-2">
-          <span className="text-xs font-medium text-gray-500 uppercase">Individual Walls</span>
-          {[0, 1, 2, 3].map((index) => (
-            <div key={index} className="flex items-center justify-between py-1">
-              <span className="text-sm text-gray-600">{WALL_LABELS[index]}</span>
-              <div className="flex items-center space-x-1">
-                <button
-                  onClick={() => {
-                    if (typeof window !== 'undefined' && (window as any).setWallVisibility) {
-                      (window as any).setWallVisibility(index, true)
-                    }
-                  }}
-                  className="px-2 py-0.5 text-xs rounded bg-green-50 text-green-700 hover:bg-green-100"
-                >
-                  Show
-                </button>
-                <button
-                  onClick={() => {
-                    if (typeof window !== 'undefined' && (window as any).setWallVisibility) {
-                      (window as any).setWallVisibility(index, false)
-                    }
-                  }}
-                  className="px-2 py-0.5 text-xs rounded bg-red-50 text-red-700 hover:bg-red-100"
-                >
-                  Hide
-                </button>
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
-
       {/* Wireframe Toggle */}
       <div className="flex items-center justify-between pt-2 border-t border-gray-200">
         <div>
@@ -248,8 +164,7 @@ export function RoomControls() {
       </div>
 
       {/* Smart Walls Section */}
-      {room.wallsVisible && (
-        <div className="pt-4 border-t border-gray-200 space-y-4">
+      <div className="pt-4 border-t border-gray-200 space-y-4">
           <div className="flex items-center justify-between">
             <div>
               <span className="text-sm font-medium text-gray-900">Smart Wall Hide</span>
@@ -321,7 +236,6 @@ export function RoomControls() {
             </div>
           )}
         </div>
-      )}
     </div>
   )
 }

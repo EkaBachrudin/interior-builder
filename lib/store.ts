@@ -46,19 +46,17 @@ interface InteriorStore {
 
 const initialState = {
   room: {
-    width: 4,
-    height: 4,
+    width: 6,
+    height: 6,
     wallHeight: 250,
     floorTexture: '',
     wallTexture: '',
-    wallsVisible: true,
     ceilingVisible: false,
     wireframeMode: false,
     smartWallsEnabled: true,
     smartWallsSensitivity: 0.5,
     smartWallsTransitionSpeed: 300,
-    smartWallsDebugMode: false,
-    presetName: 'Custom'
+    smartWallsDebugMode: false
   },
   placedItems: [],
   selectedItemId: null,

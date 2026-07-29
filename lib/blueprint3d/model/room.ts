@@ -14,8 +14,8 @@ export interface RoomState {
 }
 
 export const DEFAULT_ROOM_CONFIG: RoomConfig = {
-  width: 4,
-  height: 4,
+  width: 6,
+  height: 6,
   wallHeight: 250,
   wallThickness: 10
 }
