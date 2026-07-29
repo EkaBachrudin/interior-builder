@@ -21,20 +21,16 @@ export function ItemProperties() {
 
   const [localPosition, setLocalPosition] = useState([0, 0, 0])
   const [localRotation, setLocalRotation] = useState(0)
-  const [localScale, setLocalScale] = useState(1)
 
   useEffect(() => {
     if (selectedItem) {
       setLocalPosition(selectedItem.position)
       setLocalRotation(selectedItem.rotation)
-      setLocalScale(selectedItem.scale)
     } else {
-      // Reset to defaults when no item is selected
       setLocalPosition([0, 0, 0])
       setLocalRotation(0)
-      setLocalScale(1)
     }
-  }, [selectedItemId, selectedItem?.position, selectedItem?.rotation, selectedItem?.scale])
+  }, [selectedItemId, selectedItem?.position, selectedItem?.rotation])
 
   const handlePositionChange = (index: number, value: string) => {
     const numValue = parseFloat(value)
@@ -51,14 +47,6 @@ export function ItemProperties() {
     if (!isNaN(numValue)) {
       setLocalRotation(numValue)
       updateItem(selectedItemId!, { rotation: numValue })
-    }
-  }
-
-  const handleScaleChange = (value: string) => {
-    const numValue = parseFloat(value)
-    if (!isNaN(numValue) && numValue > 0) {
-      setLocalScale(numValue)
-      updateItem(selectedItemId!, { scale: numValue })
     }
   }
 
@@ -128,7 +116,7 @@ export function ItemProperties() {
                 step="1"
                 value={localPosition[index]}
                 onChange={(e) => handlePositionChange(index, e.target.value)}
-                className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-2 py-1.5 text-sm text-gray-900 bg-white border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
             </div>
           ))}
@@ -145,7 +133,7 @@ export function ItemProperties() {
           step="15"
           value={localRotation}
           onChange={(e) => handleRotationChange(e.target.value)}
-          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          className="w-full px-3 py-2 text-sm text-gray-900 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
         />
         <div className="flex space-x-2 mt-2">
           {[-90, -45, 0, 45, 90].map((angle) => (
@@ -155,33 +143,6 @@ export function ItemProperties() {
               className="px-3 py-1 text-sm bg-gray-100 hover:bg-gray-200 rounded transition-colors"
             >
               {angle}°
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* Scale */}
-      <div>
-        <label className="block text-xs font-medium text-gray-700 mb-2">
-          Scale
-        </label>
-        <input
-          type="number"
-          step="0.1"
-          min="0.1"
-          max="3"
-          value={localScale}
-          onChange={(e) => handleScaleChange(e.target.value)}
-          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-        />
-        <div className="flex space-x-2 mt-2">
-          {[0.5, 0.75, 1, 1.25, 1.5].map((scale) => (
-            <button
-              key={scale}
-              onClick={() => handleScaleChange(scale.toString())}
-              className="px-3 py-1 text-sm bg-gray-100 hover:bg-gray-200 rounded transition-colors"
-            >
-              {scale}x
             </button>
           ))}
         </div>
