@@ -22,14 +22,14 @@ export function SummaryPanel() {
     return (
       <button
         onClick={() => setIsOpen(true)}
-        className="absolute bottom-4 right-4 z-10 flex items-center h-11 px-4 bg-white border-2 border-blue-200 rounded-full shadow-lg hover:border-blue-400 hover:shadow-xl transition-all"
+        className="absolute bottom-4 right-4 z-10 flex items-center h-11 px-4 bg-white border border-[var(--accent-blue-text)] rounded-lg shadow-[0_2px_8px_rgba(0,0,0,0.04)] hover:border-[var(--accent-blue-text)] transition-all"
         title="Rent Summary"
       >
-        <svg className="w-5 h-5 text-blue-600 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        <svg className="w-5 h-5 text-[var(--accent-blue-text)] flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
           <path strokeLinecap="round" strokeLinejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
         </svg>
         {placedItems.length > 0 && (
-          <span className="ml-2 text-sm font-semibold text-blue-600">${totalRent}/wk</span>
+          <span className="ml-2 text-sm font-semibold text-[var(--accent-blue-text)]">${totalRent}/wk</span>
         )}
       </button>
     )
@@ -42,16 +42,16 @@ export function SummaryPanel() {
         onClick={() => setIsOpen(false)}
       />
 
-      <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50 w-[420px] max-h-[80vh] bg-white rounded-xl shadow-2xl flex flex-col overflow-hidden">
-        <div className="flex items-center justify-between px-5 py-4 border-b border-gray-200">
+      <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50 w-[420px] max-h-[80vh] bg-white rounded-lg shadow-[0_2px_8px_rgba(0,0,0,0.04)] flex flex-col overflow-hidden">
+        <div className="flex items-center justify-between px-5 py-4 border-b border-[var(--border)]">
           <div>
-            <h3 className="text-base font-semibold text-gray-900">
+            <h3 className="text-base font-semibold text-[var(--foreground)]">
               Rent Summary
             </h3>
           </div>
           <button
             onClick={() => setIsOpen(false)}
-            className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-gray-100 text-gray-500 flex-shrink-0"
+            className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-white text-[var(--muted)] flex-shrink-0"
           >
             ✕
           </button>
@@ -59,7 +59,7 @@ export function SummaryPanel() {
 
         <div className="flex-1 overflow-y-auto px-5 py-3">
           {placedItems.length === 0 ? (
-            <p className="text-sm text-gray-400 text-center py-8">No items placed</p>
+            <p className="text-sm text-[var(--muted)] text-center py-8">No items placed</p>
           ) : (
             <div className="space-y-2">
               {placedItems.map((pi) => {
@@ -68,16 +68,16 @@ export function SummaryPanel() {
                 return (
                   <div
                     key={pi.id}
-                    className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 transition-colors"
+                    className="flex items-center gap-3 p-2 rounded-lg hover:bg-white transition-colors"
                   >
-                    <div className="w-12 h-12 rounded-lg overflow-hidden border border-gray-200 bg-white flex-shrink-0">
+                    <div className="w-12 h-12 rounded-lg overflow-hidden border border-[var(--border)] bg-white flex-shrink-0">
                       <ModelThumbnail modelUrl={item.model} name={item.name} />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-gray-900 truncate">{item.name}</p>
-                      <p className="text-xs text-gray-500 capitalize">{item.category}</p>
+                      <p className="text-sm font-medium text-[var(--foreground)] truncate">{item.name}</p>
+                      <p className="text-xs text-[var(--muted)] capitalize">{item.category}</p>
                     </div>
-                    <span className="text-sm font-medium text-blue-600 whitespace-nowrap">
+                    <span className="text-sm font-medium text-[var(--accent-blue-text)] whitespace-nowrap">
                       ${item.weeklyRent}/wk
                     </span>
                   </div>
@@ -87,7 +87,7 @@ export function SummaryPanel() {
           )}
         </div>
 
-        <div className="px-5 py-3 border-t border-gray-200 bg-gray-50 space-y-3">
+        <div className="px-5 py-3 border-t border-[var(--border)] bg-white space-y-3">
           <button
             onClick={() => {
               setRentClicked(!rentClicked)
@@ -95,17 +95,17 @@ export function SummaryPanel() {
                 setTimeout(() => setRentClicked(false), 2000)
               }
             }}
-            className={`w-full py-2.5 rounded-lg text-sm font-medium transition-all ${
+            className={`w-full py-2.5 rounded text-sm font-medium transition-all ${
               rentClicked
-                ? 'bg-green-50 text-green-700 border border-green-200'
-                : 'bg-blue-600 hover:bg-blue-700 text-white'
+                ? 'bg-[var(--accent-green-bg)] text-[var(--accent-green-text)] border border-[var(--accent-green-text)]'
+                : 'bg-[#111111] hover:bg-[#333333] text-white'
             }`}
           >
             {rentClicked ? '✓ Requested' : 'Rent Now'}
           </button>
           <div className="flex items-center justify-between text-sm">
-            <span className="font-medium text-gray-700">{placedItems.length} items</span>
-            <span className="font-semibold text-gray-900">${totalRent}/wk</span>
+            <span className="font-medium text-[var(--foreground)]">{placedItems.length} items</span>
+            <span className="font-semibold text-[var(--foreground)]">${totalRent}/wk</span>
           </div>
         </div>
       </div>

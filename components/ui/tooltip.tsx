@@ -63,11 +63,11 @@ export function Tooltip({ content, children, position = 'top', delay = 200 }: To
       {isVisible && (
         <div
           ref={tooltipRef}
-          className={`absolute z-50 px-3 py-2 text-sm text-white bg-gray-900 rounded-lg shadow-lg whitespace-nowrap ${positionClasses[position]}`}
+          className={`absolute z-50 px-3 py-2 text-sm text-[var(--foreground)] bg-white border border-[var(--border)] rounded-lg shadow-[0_2px_8px_rgba(0,0,0,0.04)] whitespace-nowrap ${positionClasses[position]}`}
         >
           {content}
           <div
-            className={`absolute w-0 h-0 border-4 ${arrowClasses[position]} border-gray-900`}
+            className={`absolute w-0 h-0 border-4 ${arrowClasses[position]} border-white`}
           />
         </div>
       )}

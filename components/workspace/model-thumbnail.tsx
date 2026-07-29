@@ -104,16 +104,16 @@ export function ModelThumbnail({ modelUrl, name }: ModelThumbnailProps) {
 
   if (error) {
     return (
-      <div className="w-full h-full flex items-center justify-center bg-gray-100 text-gray-400 text-xs text-center p-2">
+      <div className="w-full h-full flex items-center justify-center bg-white text-[var(--muted)] text-xs text-center p-2">
         {name}
       </div>
     )
   }
 
   return (
-    <div className="w-full h-full flex flex-col items-center justify-center bg-gray-100 text-gray-400 text-xs text-center p-2">
+    <div className="w-full h-full flex flex-col items-center justify-center bg-white text-[var(--muted)] text-xs text-center p-2">
       <canvas ref={canvasRef} className="hidden" />
-      <div className="w-5 h-5 border-2 border-gray-300 border-t-blue-500 rounded-full animate-spin mb-1" />
+      <div className="w-5 h-5 border-2 border-[var(--border)] border-t-[var(--accent-blue-text)] rounded-full animate-spin mb-1" />
       <span>Loading...</span>
     </div>
   )

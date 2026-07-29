@@ -58,11 +58,11 @@ export function ItemProperties() {
 
   if (!selectedItem || !itemData) {
     return (
-      <div className="bg-white border border-gray-200 rounded-lg p-4">
-        <h3 className="text-sm font-semibold text-gray-900 uppercase tracking-wide mb-3">
+      <div className="bg-white border border-[var(--border)] rounded-lg p-4">
+        <h3 className="text-sm font-semibold text-[var(--foreground)] uppercase tracking-wide mb-3">
           Properties
         </h3>
-        <p className="text-sm text-gray-500 text-center py-8">
+        <p className="text-sm text-[var(--muted)] text-center py-8">
           Select an item to view its properties
         </p>
       </div>
@@ -70,23 +70,23 @@ export function ItemProperties() {
   }
 
   return (
-    <div className="bg-white border border-gray-200 rounded-lg p-4 space-y-4">
+    <div className="bg-white border border-[var(--border)] rounded-lg p-4 space-y-4">
       {/* Header */}
       <div className="flex items-start justify-between">
         <div className="flex-1 min-w-0">
-          <h3 className="text-sm font-semibold text-gray-900 uppercase tracking-wide">
+          <h3 className="text-sm font-semibold text-[var(--foreground)] uppercase tracking-wide">
             Properties
           </h3>
-          <h4 className="text-lg font-medium text-gray-900 mt-1 truncate">
+          <h4 className="text-lg font-medium text-[var(--foreground)] mt-1 truncate">
             {itemData.name}
           </h4>
-          <p className="text-sm text-gray-500 capitalize mt-1">
+          <p className="text-sm text-[var(--muted)] capitalize mt-1">
             {itemData.category}
           </p>
         </div>
         <button
           onClick={handleDelete}
-          className="ml-2 p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+          className="ml-2 p-2 text-[var(--accent-red-text)] hover:bg-[var(--accent-red-bg)] rounded-lg transition-colors"
           title="Delete item"
         >
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -97,26 +97,26 @@ export function ItemProperties() {
 
       {/* Description */}
       {itemData.description && (
-        <p className="text-sm text-gray-600 leading-relaxed">
+        <p className="text-sm text-[var(--muted)] leading-relaxed">
           {itemData.description}
         </p>
       )}
 
       {/* Position */}
       <div>
-        <label className="block text-xs font-medium text-gray-700 mb-2">
+        <label className="block text-xs font-medium text-[var(--foreground)] mb-2">
           Position
         </label>
         <div className="grid grid-cols-3 gap-2">
           {['X', 'Y', 'Z'].map((axis, index) => (
             <div key={axis}>
-              <label className="block text-xs text-gray-500 mb-1">{axis}</label>
+              <label className="block text-xs text-[var(--muted)] mb-1">{axis}</label>
               <input
                 type="number"
                 step="1"
                 value={localPosition[index]}
                 onChange={(e) => handlePositionChange(index, e.target.value)}
-                className="w-full px-2 py-1.5 text-sm text-gray-900 bg-white border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-2 py-1.5 text-sm text-[var(--foreground)] bg-white border border-[var(--border)] rounded focus:ring-2 focus:ring-[var(--accent-blue-text)] focus:border-transparent"
               />
             </div>
           ))}
@@ -125,7 +125,7 @@ export function ItemProperties() {
 
       {/* Rotation */}
       <div>
-        <label className="block text-xs font-medium text-gray-700 mb-2">
+        <label className="block text-xs font-medium text-[var(--foreground)] mb-2">
           Rotation (degrees)
         </label>
         <input
@@ -133,14 +133,14 @@ export function ItemProperties() {
           step="15"
           value={localRotation}
           onChange={(e) => handleRotationChange(e.target.value)}
-          className="w-full px-3 py-2 text-sm text-gray-900 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          className="w-full px-3 py-2 text-sm text-[var(--foreground)] bg-white border border-[var(--border)] rounded-lg focus:ring-2 focus:ring-[var(--accent-blue-text)] focus:border-transparent"
         />
         <div className="flex space-x-2 mt-2">
           {[-90, -45, 0, 45, 90].map((angle) => (
             <button
               key={angle}
               onClick={() => handleRotationChange(angle.toString())}
-              className="px-3 py-1 text-sm text-gray-700 bg-gray-100 hover:bg-gray-200 rounded transition-colors"
+              className="px-3 py-1 text-sm text-[var(--muted)] bg-white hover:bg-[var(--canvas)] border border-[var(--border)] rounded transition-colors"
             >
               {angle}°
             </button>

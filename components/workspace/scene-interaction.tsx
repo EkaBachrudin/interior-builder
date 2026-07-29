@@ -556,33 +556,33 @@ export function SceneInteraction({ className = '', onObjectSelect, onObjectTrans
       
       {/* Placement UI Overlay */}
       {isPlacing && (
-        <div className="absolute top-4 left-1/2 transform -translate-x-1/2 bg-white rounded-lg shadow-lg px-6 py-4 z-10">
+        <div className="absolute top-4 left-1/2 transform -translate-x-1/2 bg-white rounded-lg shadow-[0_2px_8px_rgba(0,0,0,0.04)] px-6 py-4 z-10">
           <div className="flex items-center space-x-4">
             <div className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+              <div className="w-8 h-8 bg-[var(--accent-blue-bg)] rounded-full flex items-center justify-center">
                 {placingItem && placingItem.image ? (
                   <img src={placingItem.image} alt={placingItem.name} className="w-6 h-6 object-cover rounded" />
                 ) : (
-                  <span className="text-xs text-blue-600 font-medium">{placingItem?.name?.charAt(0) || '?'}</span>
+                  <span className="text-xs text-[var(--accent-blue-text)] font-medium">{placingItem?.name?.charAt(0) || '?'}</span>
                 )}
               </div>
-              <span className="font-medium text-gray-900">{placingItem?.name}</span>
+              <span className="font-medium text-[var(--foreground)]">{placingItem?.name}</span>
             </div>
             
-            <div className="h-6 w-px bg-gray-200" />
+            <div className="h-6 w-px bg-[var(--border)]" />
             
-            <div className="text-sm text-gray-600">
+            <div className="text-sm text-[var(--muted)]">
               <span className="font-medium">Click</span> to place
             </div>
-            <div className="text-sm text-gray-600">
+            <div className="text-sm text-[var(--muted)]">
               <span className="font-medium">Right-click</span> to cancel
             </div>
             
-            <div className="h-6 w-px bg-gray-200" />
+            <div className="h-6 w-px bg-[var(--border)]" />
             
             <button
               onClick={cancelItemPlacement}
-              className="px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg text-sm font-medium text-gray-700 transition-colors"
+              className="px-4 py-2 bg-white hover:bg-[var(--canvas)] rounded-lg text-sm font-medium text-[var(--muted)] border border-[var(--border)] transition-colors"
             >
               Cancel
             </button>
@@ -595,16 +595,16 @@ export function SceneInteraction({ className = '', onObjectSelect, onObjectTrans
         <div className="absolute inset-0 bg-black/50 flex items-center justify-center z-20">
           <div className="bg-white rounded-lg p-6 max-w-sm w-full mx-4">
             <div className="text-center">
-              <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">Loading Model</h3>
-              <p className="text-sm text-gray-600">Please wait while we load the furniture model...</p>
-              <div className="mt-4 bg-gray-200 rounded-full h-2">
+              <div className="w-12 h-12 border-4 border-[var(--accent-blue-text)] border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+              <h3 className="text-lg font-semibold text-[var(--foreground)] mb-2">Loading Model</h3>
+              <p className="text-sm text-[var(--muted)]">Please wait while we load the furniture model...</p>
+              <div className="mt-4 bg-[var(--border)] rounded-full h-2">
                 <div 
-                  className="bg-blue-600 h-2 rounded-full transition-all duration-300" 
+                  className="bg-[var(--accent-blue-text)] h-2 rounded-full transition-all duration-300" 
                   style={{ width: `${loadingProgress * 100}%` }}
                 />
               </div>
-              <p className="text-xs text-gray-500 mt-2">{Math.round(loadingProgress * 100)}%</p>
+              <p className="text-xs text-[var(--muted)] mt-2">{Math.round(loadingProgress * 100)}%</p>
             </div>
           </div>
         </div>

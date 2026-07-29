@@ -19,7 +19,7 @@ export function RoomControls() {
       <div className="space-y-3">
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <label className="block text-xs font-medium text-gray-700 mb-1">
+            <label className="block text-xs font-medium text-[var(--foreground)] mb-1">
               Width (m)
             </label>
             <input
@@ -29,11 +29,11 @@ export function RoomControls() {
               max="20"
               value={room.width}
               onChange={(e) => handleDimensionChange('width', e.target.value)}
-              className="w-full px-3 py-2 text-sm text-gray-900 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-3 py-2 text-sm text-[var(--foreground)] bg-white border border-[var(--border)] rounded-lg focus:ring-2 focus:ring-[var(--accent-blue-text)] focus:border-transparent"
             />
           </div>
           <div>
-            <label className="block text-xs font-medium text-gray-700 mb-1">
+            <label className="block text-xs font-medium text-[var(--foreground)] mb-1">
               Length (m)
             </label>
             <input
@@ -43,13 +43,13 @@ export function RoomControls() {
               max="20"
               value={room.height}
               onChange={(e) => handleDimensionChange('height', e.target.value)}
-              className="w-full px-3 py-2 text-sm text-gray-900 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-3 py-2 text-sm text-[var(--foreground)] bg-white border border-[var(--border)] rounded-lg focus:ring-2 focus:ring-[var(--accent-blue-text)] focus:border-transparent"
             />
           </div>
         </div>
 
         <div>
-          <label className="block text-xs font-medium text-gray-700 mb-1">
+          <label className="block text-xs font-medium text-[var(--foreground)] mb-1">
             Wall Height (cm)
           </label>
           <input
@@ -59,14 +59,14 @@ export function RoomControls() {
             max="400"
             value={room.wallHeight}
             onChange={(e) => handleDimensionChange('wallHeight', e.target.value)}
-            className="w-full px-3 py-2 text-sm text-gray-900 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="w-full px-3 py-2 text-sm text-[var(--foreground)] bg-white border border-[var(--border)] rounded-lg focus:ring-2 focus:ring-[var(--accent-blue-text)] focus:border-transparent"
           />
         </div>
       </div>
 
       {/* Floor Texture */}
       <div>
-        <label className="block text-xs font-medium text-gray-700 mb-2">
+        <label className="block text-xs font-medium text-[var(--foreground)] mb-2">
           Floor Texture
         </label>
         <div className="grid grid-cols-4 gap-2">
@@ -74,11 +74,11 @@ export function RoomControls() {
             onClick={() => updateRoom({ floorTexture: '' })}
             className={`aspect-square rounded-lg border-2 transition-all ${
               !room.floorTexture
-                ? 'border-blue-500 ring-2 ring-blue-200'
-                : 'border-gray-200 hover:border-gray-300'
+                ? 'border-[var(--accent-blue-text)] ring-2 ring-[var(--accent-blue-bg)]'
+                : 'border-[var(--border)] hover:border-[var(--muted)]'
             }`}
           >
-            <div className="w-full h-full bg-gray-100 rounded" />
+            <div className="w-full h-full bg-white rounded" />
           </button>
           {FLOOR_TEXTURES.map((texture) => (
             <button
@@ -86,8 +86,8 @@ export function RoomControls() {
               onClick={() => updateRoom({ floorTexture: texture.url })}
               className={`aspect-square rounded-lg border-2 overflow-hidden transition-all ${
                 room.floorTexture === texture.url
-                  ? 'border-blue-500 ring-2 ring-blue-200'
-                  : 'border-gray-200 hover:border-gray-300'
+                  ? 'border-[var(--accent-blue-text)] ring-2 ring-[var(--accent-blue-bg)]'
+                  : 'border-[var(--border)] hover:border-[var(--muted)]'
               }`}
             >
               <img
@@ -103,7 +103,7 @@ export function RoomControls() {
 
       {/* Wall Texture */}
       <div>
-        <label className="block text-xs font-medium text-gray-700 mb-2">
+        <label className="block text-xs font-medium text-[var(--foreground)] mb-2">
           Wall Texture
         </label>
         <div className="grid grid-cols-4 gap-2">
@@ -111,11 +111,11 @@ export function RoomControls() {
             onClick={() => updateRoom({ wallTexture: '' })}
             className={`aspect-square rounded-lg border-2 transition-all ${
               !room.wallTexture
-                ? 'border-blue-500 ring-2 ring-blue-200'
-                : 'border-gray-200 hover:border-gray-300'
+                ? 'border-[var(--accent-blue-text)] ring-2 ring-[var(--accent-blue-bg)]'
+                : 'border-[var(--border)] hover:border-[var(--muted)]'
             }`}
           >
-            <div className="w-full h-full bg-gray-50 rounded" />
+            <div className="w-full h-full bg-white rounded" />
           </button>
           {WALL_TEXTURES.map((texture) => (
             <button
@@ -123,8 +123,8 @@ export function RoomControls() {
               onClick={() => updateRoom({ wallTexture: texture.url })}
               className={`aspect-square rounded-lg border-2 overflow-hidden transition-all ${
                 room.wallTexture === texture.url
-                  ? 'border-blue-500 ring-2 ring-blue-200'
-                  : 'border-gray-200 hover:border-gray-300'
+                  ? 'border-[var(--accent-blue-text)] ring-2 ring-[var(--accent-blue-bg)]'
+                  : 'border-[var(--border)] hover:border-[var(--muted)]'
               }`}
             >
               <img
@@ -139,15 +139,15 @@ export function RoomControls() {
       </div>
 
       {/* Wireframe Toggle */}
-      <div className="flex items-center justify-between pt-2 border-t border-gray-200">
+      <div className="flex items-center justify-between pt-2 border-t border-[var(--border)]">
         <div>
-          <span className="text-sm font-medium text-gray-700">Wireframe Mode</span>
-          <p className="text-xs text-gray-500">Show scene as wireframe</p>
+          <span className="text-sm font-medium text-[var(--foreground)]">Wireframe Mode</span>
+          <p className="text-xs text-[var(--muted)]">Show scene as wireframe</p>
         </div>
         <button
           onClick={() => updateRoom({ wireframeMode: !room.wireframeMode })}
           className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-            room.wireframeMode ? 'bg-blue-600' : 'bg-gray-200'
+            room.wireframeMode ? 'bg-[var(--accent-blue-text)]' : 'bg-[var(--border)]'
           }`}
         >
           <span

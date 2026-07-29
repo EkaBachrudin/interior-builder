@@ -53,18 +53,18 @@ export function FurnitureCatalog() {
   }
 
   return (
-    <div className={`flex flex-col h-full bg-white border-r border-gray-200 transition-all duration-300 ${
+    <div className={`flex flex-col h-full bg-white border-r border-[var(--border)] transition-all duration-300 ${
       isCollapsed ? 'w-12' : 'w-80'
     }`}>
       {/* Header */}
-      <div className="p-4 border-b border-gray-200">
+      <div className="p-4 border-b border-[var(--border)]">
         <div className="flex items-center justify-between mb-4">
           {!isCollapsed && (
-            <h2 className="text-lg font-semibold text-gray-900">Furniture</h2>
+            <h2 className="text-lg font-semibold text-[var(--foreground)]">Furniture</h2>
           )}
           <button
             onClick={() => setIsCollapsed(!isCollapsed)}
-            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+            className="p-2 hover:bg-white rounded-lg transition-colors"
             aria-label={isCollapsed ? 'Expand catalog' : 'Collapse catalog'}
           >
             {isCollapsed ? (
@@ -88,10 +88,10 @@ export function FurnitureCatalog() {
                 placeholder="Search furniture..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 text-sm text-gray-900 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full pl-10 pr-4 py-2 text-sm text-[var(--foreground)] bg-white border border-[var(--border)] rounded-lg focus:ring-2 focus:ring-[var(--accent-blue-text)] focus:border-transparent"
               />
               <svg
-                className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400"
+                className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-[var(--muted)]"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -111,8 +111,8 @@ export function FurnitureCatalog() {
                 onClick={() => setSelectedCategory('all')}
                 className={`w-full text-left px-3 py-2 rounded-lg transition-colors ${
                   selectedCategory === 'all'
-                    ? 'bg-blue-50 text-blue-700 font-medium'
-                    : 'hover:bg-gray-50 text-gray-700'
+                    ? 'bg-[var(--accent-blue-bg)] text-[var(--accent-blue-text)] font-medium'
+                    : 'hover:bg-white text-[var(--muted)]'
                 }`}
               >
                 All Items ({ITEMS.length})
@@ -123,8 +123,8 @@ export function FurnitureCatalog() {
                   onClick={() => setSelectedCategory(category)}
                   className={`w-full text-left px-3 py-2 rounded-lg transition-colors ${
                     selectedCategory === category
-                      ? 'bg-blue-50 text-blue-700 font-medium'
-                      : 'hover:bg-gray-50 text-gray-700'
+                      ? 'bg-[var(--accent-blue-bg)] text-[var(--accent-blue-text)] font-medium'
+                      : 'hover:bg-white text-[var(--muted)]'
                   }`}
                 >
                   {CATEGORY_LABELS[category]} ({count})
@@ -139,7 +139,7 @@ export function FurnitureCatalog() {
       {!isCollapsed && (
         <div className="flex-1 overflow-y-auto p-4">
           {filteredItems.length === 0 ? (
-            <div className="text-center py-8 text-gray-500">
+            <div className="text-center py-8 text-[var(--muted)]">
               No items found
             </div>
           ) : (
@@ -148,18 +148,18 @@ export function FurnitureCatalog() {
                 <button
                   key={item.key}
                   onClick={() => handleItemClick(item)}
-                  className="group relative bg-gray-50 rounded-lg p-3 hover:bg-blue-50 hover:border-blue-200 border border-transparent transition-all"
+                  className="group relative bg-white rounded-lg p-3 border border-[var(--border)] hover:bg-[var(--accent-blue-bg)] hover:border-[var(--accent-blue-text)] transition-all"
                 >
-                  <div className="aspect-square bg-white rounded-lg mb-2 overflow-hidden border border-gray-200">
+                  <div className="aspect-square bg-white rounded-lg mb-2 overflow-hidden border border-[var(--border)]">
                     <ModelThumbnail modelUrl={item.model} name={item.name} />
                   </div>
-                  <div className="text-sm font-medium text-gray-900 line-clamp-2">
+                  <div className="text-sm font-medium text-[var(--foreground)] line-clamp-2">
                     {item.name}
                   </div>
-                  <div className="text-xs text-gray-500 mt-1 capitalize">
+                  <div className="text-xs text-[var(--muted)] mt-1 capitalize">
                     {item.category}
                   </div>
-                  <div className="text-xs font-medium text-blue-600 mt-0.5">
+                  <div className="text-xs font-medium text-[var(--accent-blue-text)] mt-0.5">
                     ${item.weeklyRent}/wk
                   </div>
                 </button>
